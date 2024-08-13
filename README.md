@@ -33,6 +33,10 @@ Type: String (PlayerInvite or SponsorProposal)
 Status: String (PENDING/ACCEPTED/REJECTED)
 sender: Team.id if PlayerInvite else Sponsor.id
 
+# TODO:
+
+- [ ] add text what each end point do in plain text
+- [ ] add response body
 
 # User Stories
 
@@ -61,10 +65,8 @@ body = {
 ---------------------------------
 change role
 
-```url = PATCH : "/role"```
-```
-path parameter = new role
-```
+```url = PATCH : "/role/" + {new role}```
+
 ---------------------------------
 view sponsors
 
@@ -73,7 +75,7 @@ view sponsors
 ---------------------------------
 Accept/Reject team invite
 
-```url = PATCH : "/proposal/team" + "ACCEPT" 0r "REJECT"```
+```url = PATCH : "/proposal/team/" + "ACCEPT" 0r "REJECT"```
 
 ---------------------------------
 
@@ -82,7 +84,7 @@ Accept/Reject team invite
 ---------------------------------
 Accept/Reject Sponsor proposals
 
-```url = PATCH : "/proposal/sponsor" + "ACCEPT" 0r "REJECT"```
+```url = PATCH : "/proposal/sponsor/" + "ACCEPT" 0r "REJECT"```
 
 ---------------------------------
 Send team invite to Player
@@ -90,7 +92,8 @@ Send team invite to Player
 ```url = POST : "/team/proposal"```
 ```
 body = {
-    sender = UUID 
+    Type: String (default value = "PlayerInvite")
+    sender: UUID 
 }
 ```
 ---------------------------------
@@ -137,7 +140,7 @@ Send proposal
 ```url = POST : "/sponsor/proposal"```
 ```
 body = {
-    sender = UUID 
+    sender: UUID 
 }
 ```
 ---------------------------------
