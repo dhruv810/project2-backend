@@ -1,6 +1,13 @@
 package com.reveture.project2.entities;
 
-import jakarta.persistence.Entity;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.springframework.stereotype.Component;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 
 import java.util.List;
 import java.util.UUID;
@@ -20,14 +27,37 @@ When requested all sponsored teams/player, return accepted proposals.
  */
 
 @Entity
+@Table(name = "Sponsors")
+@Component
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
 public class Sponsor {
-
+    @Id
+    @Column(name="sponsor_id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private UUID SponsorId;
+
+    @Column(name="username", nullable = false)
     private String username;
+
+    @Column(name="password", nullable = false)
     private String password;
+
+    @Column(name="category", nullable = false)
     private String category;
+
+    @Column(name="name", nullable = false)
     private String name;
+
+    @Column(name="budget", nullable = false)
     private Double budget;
+
+
+    @Column(name = "proposals", nullable = false)
+    @JsonIgnore
+    @OneToMany(mappedBy = "sender_sponsor", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Proposal> proposals;
 
 }

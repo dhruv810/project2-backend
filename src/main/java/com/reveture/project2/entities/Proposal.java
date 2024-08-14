@@ -1,6 +1,11 @@
 package com.reveture.project2.entities;
 
 import jakarta.persistence.Entity;
+import lombok.*;
+import org.springframework.stereotype.Component;
+import jakarta.persistence.*;
+
+
 
 import java.util.UUID;
 
@@ -17,13 +22,42 @@ We are using sender and receiver id and not object because object type can be di
  */
 
 @Entity
+@Table(name = "Proposals")
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+@Component
 public class Proposal {
 
+    @Id
+    @Column(name="proposal_id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private UUID proposalId;
+
+    @Column(name="type", nullable = false)
     private String type;
+
+    @Column(name="status", nullable = false)
     private String status;
-    private UUID sender;
-    private UUID receiver;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "sponsor_id", nullable = true)
+    private Sponsor sender_sponsor;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id", nullable = true)
+    private User sender_manager;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name="team_id", nullable = true)
+    private Team receiver_team;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id", nullable = true)
+    private User receiver_player;
+
+    @Column(name="amount", nullable = false)
     private Double amount;
 
 }

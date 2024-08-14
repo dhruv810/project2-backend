@@ -1,6 +1,8 @@
 package com.reveture.project2.entities;
 
-import jakarta.persistence.Entity;
+import jakarta.persistence.*;
+import lombok.*;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.UUID;
@@ -24,11 +26,39 @@ but not the amount that sponsors give to the team.
  */
 
 @Entity
+@Component
+@AllArgsConstructor
+@NoArgsConstructor
+@Table(name = "team")
+@Setter
+@Getter
+@EqualsAndHashCode
 public class Team {
 
+    @Id
+    @Column(name = "team_id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID teamId;
+
+    @Column(name = "teamName", nullable = false, unique = true)
     private String teamName;
+
+    @ManyToMany
     private List<Sponsorship> playerSponsors;
+
+    @OneToMany(mappedBy = "team", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<User> teamMembers;
+
+    @Column(name = "balance", nullable = false)
     private Double balance;
+
+    @Override
+    public String toString() {
+        return "Team{" +
+                "teamId=" + teamId +
+                ", teamName='" + teamName + '\'' +
+                ", playerSponsors=" + playerSponsors +
+                ", balance=" + balance +
+                '}';
+    }
 }

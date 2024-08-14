@@ -1,6 +1,11 @@
 package com.reveture.project2.entities;
 
-import jakarta.persistence.Entity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.UUID;
@@ -21,15 +26,42 @@ When player or sponsor wants to
 // Added image to profile
 
 @Entity
+@Component
+@Table(name = "users")
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
 public class User {
 
+    @Id
+    @Column(name = "user_id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID userId;
+
+    @Column(name = "username", nullable = false, unique = true)
     private String username;
+
+    @Column(name = "password", nullable = false)
     private String password;
+
+    @Column(name = "role", nullable = false)
     private String role;
+
+    @ManyToMany
     private List<Sponsorship> playerSponsors;
+
+    @ManyToOne
+    @JoinColumn(name = "team_Id")
     private Team team;
+
+    @Column(name = "salary", nullable = false)
     private Double salary;
+
+    @Column(name = "proposals", nullable = false)
+    @JsonIgnore
+    @OneToMany(mappedBy = "sender_manager", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private List<Proposal> team_invites;
+
 
 }
 
