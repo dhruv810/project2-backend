@@ -92,7 +92,7 @@ This will create new user.
 
 ### Request:
 
-```url = POST : "/auth/create"```
+```url = POST : "/create"```
 ```
 body = {
     username: String
