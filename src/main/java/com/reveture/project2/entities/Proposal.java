@@ -42,19 +42,19 @@ public class Proposal {
     private String status;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "sponsor_id", nullable = true)
+    @JoinColumn(name = "sponsor_id", nullable = true, insertable=false, updatable=false)
     private Sponsor sender_sponsor;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id", nullable = true)
+    @JoinColumn(name = "user_id", nullable = true, insertable=false, updatable=false)
     private User sender_manager;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name="team_id", nullable = true)
+    @JoinColumn(name="team_id", nullable = true, insertable=false, updatable=false)
     private Team receiver_team;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id", nullable = true)
+    @JoinColumn(name = "user_id", nullable = true, insertable=false, updatable=false)
     private User receiver_player;
 
     @Column(name="amount", nullable = false)

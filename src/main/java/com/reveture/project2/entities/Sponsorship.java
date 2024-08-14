@@ -43,8 +43,8 @@ public class Sponsorship {
     private Sponsor sender_sponsor;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @Column(insertable=false, updatable=false)
-    @JoinColumn(name = "user_id", nullable = false)
+//    @Column(insertable=false, updatable=false)
+    @JoinColumn(name = "user_id", nullable = false, insertable = false, updatable = false)
     private User sender_manager;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -53,7 +53,7 @@ public class Sponsorship {
 
     @ManyToOne(fetch = FetchType.EAGER)
 //    @Column(insertable=false, updatable=false)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false, insertable = false, updatable = false)
     private User receiver_player;
 
     @Column(name = "amount", nullable = false)
