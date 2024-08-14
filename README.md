@@ -14,8 +14,6 @@ User can be PLAYER or MANAGER based on role.
 - Player can see all investors and total invested amount of team they are part of.
 - Player can see amount they are getting paid
 
-[//]: # (- Player can see other team members.)
-
 ### Manager
 - A manager is User with role as "MANAGER".
 - A manager can ACCEPT / REJECT team invite.
@@ -83,12 +81,11 @@ amount: Double
 # TODO:
 
 - [ ] add text what each end point do in plain text
-- [ ] add response body
-- [ ] store invested about per Sponsor in Teams
+- [ ] store amount invested per Sponsor in Teams
 
 # User Stories
 
----------------------------------
+---
 ## Create user
 
 This will create new user.
@@ -117,7 +114,7 @@ body = {
 }
 ```
 
----------------------------------
+---
 ## Login user
 
 This will let you log in as a User.
@@ -145,7 +142,7 @@ body = {
 }
 ```
 
----------------------------------
+---
 ## Change role
 
 This will allow Manager to promote a Player to Manger or demote Manager to Player.
@@ -162,7 +159,7 @@ Error otherwise
 body = "Sucess or Error message."
 ```
 
----------------------------------
+---
 ## View sponsors
 
 This will allow user to see all sponsors for their team. Only manager will be able to see amount of sponsorship.
@@ -193,7 +190,7 @@ body = [{
 }, ...]
 
 ```
----------------------------------
+---
 ## Accept/Reject team invite
 
 This will update team and amount if user accepts invite.
@@ -215,11 +212,11 @@ body = {
 }
 ```
 
----------------------------------
+---
 
 # User/ Manager Stories
 
----------------------------------
+---
 ## Accept/Reject Sponsor proposals
 
 Accepting Sponsor proposal will add sponsor to team's list of sponsors.
@@ -239,7 +236,7 @@ Body = [{
 }, ...]
 ```
 
----------------------------------
+---
 ## Send team invite to Player
 
 This will send a team invite to Player/Manager. Only Manager should be able to access this feature.
@@ -262,7 +259,7 @@ Error otherwise
 body = "Sucess or Error message."
 ```
 
----------------------------------
+---
 ## Remove team player
 
 This will remove a User from Team and return new list of Users.
@@ -286,7 +283,7 @@ body = [{
 }, ...]
 ```
 
----------------------------------
+---
 ## See Total Investment
 
 This will allow managers to see total amount that Sponsors has invested in the Team.
@@ -305,11 +302,11 @@ body = {
 }
 ```
 
----------------------------------
+---
 
 # Sponsor Stories
 
----------------------------------
+---
 ## Create Sponsor
 
 This will create am account as Sponsor.
@@ -339,7 +336,7 @@ body = {
 }
 ```
 
----------------------------------
+---
 ## Login
 
 This will let Sponsor login to the application.
@@ -366,7 +363,7 @@ body = {
 }
 ```
 
----------------------------------
+---
 ## Send proposal
 
 This endpoint will allow Sponsor to send proposal to teams.
@@ -388,7 +385,7 @@ Error otherwise
 body = "Sucess or Error message."
 ```
 
----------------------------------
+---
 ## Change budget
 
 This will change Sponsor's budget to new budget.
@@ -405,7 +402,7 @@ Error otherwise
 body = "Sucess or Error message."
 ```
 
----------------------------------
+---
 ## See remaining balance
 
 This will return remaining balance of Sponsor.
@@ -424,7 +421,7 @@ body = {
 }
 ```
 
----------------------------------
+---
 ## See all sponsored team
 
 This will allow sponsor to see all teams they have invested in.
@@ -441,7 +438,7 @@ body = [{
 }, ...]
 ```
 
----------------------------------
+---
 ## Remove sponsored team
 
 This will remove team sponsored team. It should be called when logged in as Sponsor.
@@ -458,11 +455,11 @@ body = [{
 }, ...]
 ```
 
----------------------------------
+---
 
 # Team Stories
 
----------------------------------
+---
 ## Create team
 
 This will create a new team. It can be called when logged In as a Manager and not currently part of any team.
@@ -488,7 +485,7 @@ body = {
 }
 ```
 
----------------------------------
+---
 ## Edit team name
 
 This will allow Manger to change name of the team
@@ -504,12 +501,3 @@ status code: 200 for sucess.
 Error otherwise.
 No return body.
 ```
-
----------------------------------
-
-
-
-
-Admin user
-
-create player/teams/sponsors
