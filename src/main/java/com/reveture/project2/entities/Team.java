@@ -1,5 +1,6 @@
 package com.reveture.project2.entities;
 
+import com.reveture.project2.service.TeamService;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.stereotype.Component;
@@ -44,7 +45,7 @@ public class Team {
     private String teamName;
 
     @ManyToMany(mappedBy = "receiverTeam")
-    private List<Proposal> playerSponsors;
+    private List<TeamProposal> playerSponsors;
 
     @OneToMany(mappedBy = "team", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<User> teamMembers;

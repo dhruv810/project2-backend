@@ -44,11 +44,17 @@ public class User {
     @Column(name = "password", nullable = false)
     private String password;
 
+    @Column(name = "first_name", nullable = false)
+    private String firstName;
+
+    @Column(name = "last_name", nullable = false)
+    private String lastName;
+
     @Column(name = "role", nullable = false)
     private String role;
-
-    @ManyToMany(mappedBy = "receiverPlayer")
-    private List<Proposal> playerSponsors;
+//
+//    @ManyToMany(mappedBy = "receiverPlayer")
+//    private List<Proposal> playerSponsors;
 
     @ManyToOne
     @JoinColumn(name = "team")

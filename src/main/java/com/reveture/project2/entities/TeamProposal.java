@@ -22,20 +22,20 @@ We are using sender and receiver id and not object because object type can be di
  */
 
 @Entity
-@Table(name = "Proposals")
+@Table(name = "team_proposals")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-public class Proposal {
+public class TeamProposal {
 
     @Id
-    @Column(name="proposal_id", nullable = false, updatable = false)
+    @Column(name = "team_proposal_id", nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID proposalId;
 
-    @Column(name="type", nullable = false)
-    private String type;
+//    @Column(name="type", nullable = false)
+//    private String type;
 
     @Column(name="status", nullable = false)
     private String status;
@@ -48,9 +48,9 @@ public class Proposal {
     @JoinColumn(name="team", nullable = true)
     private Team receiverTeam;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name="player", nullable = true)
-    private User receiverPlayer;
+//    @ManyToOne(fetch = FetchType.EAGER)
+//    @JoinColumn(name="player", nullable = true)
+//    private User receiverPlayer;
 
     @Column(name="amount", nullable = false)
     private Double amount;

@@ -57,6 +57,6 @@ public class Sponsor {
     @Column(name = "proposals", nullable = false)
     @JsonIgnore
     @OneToMany(mappedBy = "senderSponsor", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private List<Proposal> proposals;
+    private List<TeamProposal> proposals;
 
 }
