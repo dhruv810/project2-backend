@@ -31,7 +31,7 @@ Amount is agreed number that sender decided to give to receiver.
 public class Sponsorship {
 
     @Id
-    @Column(name = "sponsorship_id", nullable = false)
+    @Column(name = "sponsorship_id", nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID sponsorshipId;
 
@@ -39,22 +39,16 @@ public class Sponsorship {
     private String type;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "sponsor_id", nullable = false)
-    private Sponsor sender_sponsor;
+    @JoinColumn(name = "sponsor", nullable = false)
+    private Sponsor sender;
 
     @ManyToOne(fetch = FetchType.EAGER)
-//    @Column(insertable=false, updatable=false)
-    @JoinColumn(name = "user_id", nullable = false, insertable = false, updatable = false)
-    private User sender_manager;
+    @JoinColumn(name = "team", nullable = false)
+    private Team receiver;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "team_id", nullable = false)
-    private Team receiver_team;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-//    @Column(insertable=false, updatable=false)
-    @JoinColumn(name = "user_id", nullable = false, insertable = false, updatable = false)
-    private User receiver_player;
+    @JoinColumn(name = "player", nullable = false)
+    private User player;
 
     @Column(name = "amount", nullable = false)
     private Double amount;

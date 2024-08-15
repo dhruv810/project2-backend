@@ -36,14 +36,14 @@ but not the amount that sponsors give to the team.
 public class Team {
 
     @Id
-    @Column(name = "team_id", nullable = false)
+    @Column(name = "team_id", nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID teamId;
 
-    @Column(name = "teamName", nullable = false, unique = true)
+    @Column(name = "team_name", nullable = false, unique = true)
     private String teamName;
 
-    @ManyToMany
+    @ManyToMany(mappedBy = "receiver")
     private List<Sponsorship> playerSponsors;
 
     @OneToMany(mappedBy = "team", fetch = FetchType.EAGER, cascade = CascadeType.ALL)

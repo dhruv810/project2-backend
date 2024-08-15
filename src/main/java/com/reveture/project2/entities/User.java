@@ -34,7 +34,7 @@ When player or sponsor wants to
 public class User {
 
     @Id
-    @Column(name = "user_id", nullable = false)
+    @Column(name = "user_id", updatable = false, nullable = false)
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID userId;
 
@@ -47,7 +47,7 @@ public class User {
     @Column(name = "role", nullable = false)
     private String role;
 
-    @ManyToMany
+    @ManyToMany(mappedBy = "player")
     private List<Sponsorship> playerSponsors;
 
     @ManyToOne
@@ -57,9 +57,8 @@ public class User {
     @Column(name = "salary", nullable = false)
     private Double salary;
 
-    @Column(name = "proposals", nullable = false)
     @JsonIgnore
-    @OneToMany(mappedBy = "sender_manager", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "receiverPlayer", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Proposal> team_invites;
 
 

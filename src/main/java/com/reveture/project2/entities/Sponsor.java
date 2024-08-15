@@ -36,7 +36,7 @@ When requested all sponsored teams/player, return accepted proposals.
 public class Sponsor {
     @Id
     @Column(name="sponsor_id", nullable = false)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID SponsorId;
 
     @Column(name="username", nullable = false)
@@ -54,10 +54,9 @@ public class Sponsor {
     @Column(name="budget", nullable = false)
     private Double budget;
 
-
     @Column(name = "proposals", nullable = false)
     @JsonIgnore
-    @OneToMany(mappedBy = "sender_sponsor", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "senderSponsor", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Proposal> proposals;
 
 }

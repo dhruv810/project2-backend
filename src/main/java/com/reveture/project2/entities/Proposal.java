@@ -31,8 +31,8 @@ We are using sender and receiver id and not object because object type can be di
 public class Proposal {
 
     @Id
-    @Column(name="proposal_id", nullable = false)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="proposal_id", nullable = false, updatable = false)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID proposalId;
 
     @Column(name="type", nullable = false)
@@ -42,20 +42,20 @@ public class Proposal {
     private String status;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "sponsor_id", nullable = true, insertable=false, updatable=false)
-    private Sponsor sender_sponsor;
+    @JoinColumn(name = "sponsor_id", nullable = true)
+    private Sponsor senderSponsor;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id", nullable = true, insertable=false, updatable=false)
-    private User sender_manager;
+    @JoinColumn(name = "user_id", nullable = true)
+    private User senderManager;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name="team_id", nullable = true, insertable=false, updatable=false)
-    private Team receiver_team;
+    @JoinColumn(name="team_id", nullable = true)
+    private Team receiverTeam;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id", nullable = true, insertable=false, updatable=false)
-    private User receiver_player;
+    @JoinColumn(name = "receiver_user_id", nullable = true)
+    private User receiverPlayer;
 
     @Column(name="amount", nullable = false)
     private Double amount;
