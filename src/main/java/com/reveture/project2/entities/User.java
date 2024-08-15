@@ -51,7 +51,7 @@ public class User {
     private List<Sponsorship> playerSponsors;
 
     @ManyToOne
-    @JoinColumn(name = "team_Id")
+    @JoinColumn(name = "team")
     private Team team;
 
     @Column(name = "salary", nullable = false)
@@ -59,7 +59,7 @@ public class User {
 
     @JsonIgnore
     @OneToMany(mappedBy = "receiverPlayer", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private List<Proposal> team_invites;
+    private List<TeamInvite> team_invites;
 
 
 }

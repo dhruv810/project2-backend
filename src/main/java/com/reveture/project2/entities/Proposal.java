@@ -27,7 +27,6 @@ We are using sender and receiver id and not object because object type can be di
 @AllArgsConstructor
 @Getter
 @Setter
-@Component
 public class Proposal {
 
     @Id
@@ -42,20 +41,12 @@ public class Proposal {
     private String status;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "sponsor_id", nullable = true)
+    @JoinColumn(name = "sponsor", nullable = true)
     private Sponsor senderSponsor;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id", nullable = true)
-    private User senderManager;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name="team_id", nullable = true)
+    @JoinColumn(name="team", nullable = true)
     private Team receiverTeam;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "receiver_user_id", nullable = true)
-    private User receiverPlayer;
 
     @Column(name="amount", nullable = false)
     private Double amount;
