@@ -2,9 +2,7 @@ package com.reveture.project2.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -33,6 +31,11 @@ When player or sponsor wants to
 @Data
 public class User {
 
+
+    /*
+    I changed the generateValue annotation to GenerationType.AUTO from GenerationType.UUID,
+    as the latter was causing errors when i sent the requests ...
+     */
     @Id
     @Column(name = "user_id", updatable = false, nullable = false)
     @GeneratedValue(strategy = GenerationType.UUID)

@@ -92,25 +92,33 @@ This will create new user.
 
 ### Request:
 
-```url = POST : "/create"```
+```url = POST : "/user/create"```
 ```
-body = {
-    username: String
-    password: String
-    name: String
-    role: String
+example body = {
+  "firstName": "Mikel",
+  "lastName": "Frausto",
+  "username": "fraustom",
+  "password": "Fraustom#123",
+  "role": "player",
+  "salary": 300000
 }
+
+*** Note that userID, Team, and
+TeamInvite attributes do not need to be
+passed as params ***
 ```
 
 ### Response
 ```
-body = {
-    id: UUID
-    username: String
-    name: String
-    role: String
-    team: UUID (Team.id)
-    amount: Double
+example body ={
+    "userId": "b065e857-9770-4c9e-bbb9-90a4d3dbd048",
+    "username": "fraustom",
+    "password": "Fraustom#123",
+    "firstName": "Mikel",
+    "lastName": "Frausto",
+    "role": "player",
+    "team": null,
+    "salary": 300000.0
 }
 ```
 
