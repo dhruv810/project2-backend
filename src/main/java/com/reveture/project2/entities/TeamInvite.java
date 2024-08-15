@@ -26,11 +26,11 @@ public class TeamInvite {
     private String status;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "sender_manager_id", nullable = true)
+    @JoinColumn(name = "sender_manager_id", nullable = false)
     private User senderManager;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "receiver_player_id", nullable = true)
+    @JoinColumn(name = "receiver_player_id", nullable = false)
     private User receiverPlayer;
 
     @Column(name="amount", nullable = false)

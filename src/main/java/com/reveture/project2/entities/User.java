@@ -47,8 +47,8 @@ public class User {
     @Column(name = "role", nullable = false)
     private String role;
 
-    @ManyToMany(mappedBy = "player")
-    private List<Sponsorship> playerSponsors;
+    @ManyToMany(mappedBy = "receiverPlayer")
+    private List<Proposal> playerSponsors;
 
     @ManyToOne
     @JoinColumn(name = "team")

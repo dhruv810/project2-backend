@@ -9,6 +9,6 @@ public class SponsorController {
 
     @GetMapping("/sponsor")
     public ResponseEntity<?> test() {
-        return ResponseEntity.ok().body("Hello world");
+        return ResponseEntity.ok().body("Hello sponsor");
     }
 }

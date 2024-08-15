@@ -10,6 +10,6 @@ public class UserController {
 
     @GetMapping("/user")
     public ResponseEntity<?> test() {
-        return ResponseEntity.ok().body("Hello world");
+        return ResponseEntity.ok().body("Hello user");
     }
 }

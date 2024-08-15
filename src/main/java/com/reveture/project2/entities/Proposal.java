@@ -48,6 +48,10 @@ public class Proposal {
     @JoinColumn(name="team", nullable = true)
     private Team receiverTeam;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name="player", nullable = true)
+    private User receiverPlayer;
+
     @Column(name="amount", nullable = false)
     private Double amount;
 

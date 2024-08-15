@@ -9,6 +9,6 @@ public class TeamController {
 
     @GetMapping("/team")
     public ResponseEntity<?> test() {
-        return ResponseEntity.ok().body("Hello world");
+        return ResponseEntity.ok().body("Hello team");
     }
 }

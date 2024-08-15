@@ -43,8 +43,8 @@ public class Team {
     @Column(name = "team_name", nullable = false, unique = true)
     private String teamName;
 
-    @ManyToMany(mappedBy = "receiver")
-    private List<Sponsorship> playerSponsors;
+    @ManyToMany(mappedBy = "receiverTeam")
+    private List<Proposal> playerSponsors;
 
     @OneToMany(mappedBy = "team", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<User> teamMembers;
@@ -52,13 +52,4 @@ public class Team {
     @Column(name = "balance", nullable = false)
     private Double balance;
 
-    @Override
-    public String toString() {
-        return "Team{" +
-                "teamId=" + teamId +
-                ", teamName='" + teamName + '\'' +
-                ", playerSponsors=" + playerSponsors +
-                ", balance=" + balance +
-                '}';
-    }
 }
