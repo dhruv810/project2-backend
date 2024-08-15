@@ -27,7 +27,7 @@ When requested all sponsored teams/player, return accepted proposals.
  */
 
 @Entity
-@Table(name = "Sponsors")
+@Table(name = "sponsors")
 @Component
 @NoArgsConstructor
 @AllArgsConstructor
@@ -37,7 +37,7 @@ public class Sponsor {
     @Id
     @Column(name="sponsor_id", nullable = false)
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID SponsorId;
+    private UUID sponsorId;
 
     @Column(name="username", nullable = false)
     private String username;
