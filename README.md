@@ -315,20 +315,20 @@ body = {
 # Sponsor Stories
 
 ---
-## Create Sponsor
+## Create Sponsor -- Done
 
 This will create am account as Sponsor.
 
 ### Request:
 
-```url = POST : "/sponsor"```
+```url = POST : "/sponsor/create"```
 ```
 body = {
-    username: String
-    password: String
-    category: String
-    name: String
-    budget: Double
+    "username": String
+    "password": String
+    "category": String
+    "name": String
+    "budget": Double
 }
 ```
 
@@ -336,11 +336,11 @@ body = {
 
 ```
 body = {
-    id: UUID
-    username: String
-    category: String
-    name: String
-    budget: Double
+    "sponsorId": UUID,
+    "username": String,
+    "category": String,
+    "name": String,
+    "budget": Double
 }
 ```
 
@@ -394,7 +394,7 @@ body = "Sucess or Error message."
 ```
 
 ---
-## Change budget
+## Change budget --DONE
 
 This will change Sponsor's budget to new budget.
 
@@ -443,6 +443,7 @@ This will allow sponsor to see all teams they have invested in.
 ```
 body = [{
     name: String,
+    amount, Double
 }, ...]
 ```
 
