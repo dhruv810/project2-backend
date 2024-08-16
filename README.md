@@ -1,6 +1,7 @@
 # Project2 Backend
 
 Entities
+Link to Backend Repo: https://github.com/dhruv810/project2-backend
 
 ## Class User
 
@@ -158,6 +159,12 @@ This will allow Manager to promote a Player to Manger or demote Manager to Playe
 ### Request:
 
 ```url = PATCH : "/role/" + {new role}```
+
+``` 
+Importante notes: 
+1. We will extrat the userID from the session object to determine which user to update :-)
+2. "Player" and "Manager" are the only valid role types all others will be invalid 
+```
 
 ### Response
 
