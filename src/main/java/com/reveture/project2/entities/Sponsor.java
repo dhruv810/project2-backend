@@ -48,7 +48,7 @@ public class Sponsor {
     @Column(name="category", nullable = false)
     private String category;
 
-    @Column(name="name", nullable = false)
+    @Column(name="name", unique = true, nullable = false)
     private String name;
 
     @Column(name="budget", nullable = false)

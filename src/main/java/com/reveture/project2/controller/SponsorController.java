@@ -5,6 +5,7 @@ import com.reveture.project2.entities.Sponsor;
 import com.reveture.project2.entities.TeamProposal;
 import com.reveture.project2.exception.CustomException;
 import com.reveture.project2.service.SponsorService;
+import com.reveture.project2.service.TeamProposalService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,8 +20,12 @@ public class SponsorController {
     @Autowired
     final private SponsorService sponsorService;
 
-    public SponsorController(SponsorService sponsorService) {
+    @Autowired
+    final private TeamProposalService teamProposalService;
+
+    public SponsorController(SponsorService sponsorService, TeamProposalService teamProposalService) {
         this.sponsorService = sponsorService;
+        this.teamProposalService = teamProposalService;
     }
 
     // TODO: delete this in deployment
@@ -37,9 +42,10 @@ public class SponsorController {
             Sponsor newSponsor = this.sponsorService.createSponsor(sponsor);
             SponsorDTO s = new SponsorDTO(newSponsor);
             return ResponseEntity.ok().body(s);
-        }
-        catch (CustomException e) {
+        } catch (CustomException e) {
             return ResponseEntity.status(400).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
         }
 
     }
@@ -54,7 +60,41 @@ public class SponsorController {
             return ResponseEntity.ok().body("Successfully updated budget to " + newSponsor.getBudget());
         } catch (CustomException e) {
             return ResponseEntity.status(400).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
         }
+    }
+
+
+    /* TODO:: Test this functionality once Create Team functionality is done.
+    This gives error that cant add because team do not exist.
+    */
+    @PostMapping("/proposal")
+    public ResponseEntity<?> sendProposal(@RequestBody TeamProposal teamProposal) {
+        try {
+            teamProposal.setStatus("Pending");
+            TeamProposal tp = this.teamProposalService.createProposal(teamProposal);
+            return ResponseEntity.ok().body(tp);
+        } catch (CustomException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/teams")
+    public ResponseEntity<?> getAllTeamsSponsorInvestedIn() {
+        // TODO: get sponsor id from logged in sponsor
+        try {
+            UUID sponsorid = UUID.fromString("ac418df2-f95c-4452-a8b3-1aca202bb294");
+            List<TeamProposal> sponsoredTeams = this.teamProposalService.getAllAcceptedProposalsBySponsor(sponsorid);
+            return ResponseEntity.ok().body(sponsoredTeams);
+        } catch (CustomException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+
     }
 
 }
