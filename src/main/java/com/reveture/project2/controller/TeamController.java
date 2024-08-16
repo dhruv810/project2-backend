@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,16 +31,21 @@ public class TeamController {
     public ResponseEntity<?> getAllTeams() {
         logger.info("Received request to get all teams");
         List<Team> teamList = this.teamService.getAllTeams();
+        List<TeamDTO> res = new ArrayList<>();
+        teamList.forEach(team -> {
+            res.add(new TeamDTO(team));
+        });
+
         return ResponseEntity.ok().body(teamList);
     }
 
     @PostMapping("/team")
-    public ResponseEntity<?> createTeam(@RequestBody String teamName) {
-        logger.info("Received request to create a new team with name: {}", teamName);
+    public ResponseEntity<?> createTeam(@RequestBody Team team) {
+        logger.info("Received request to create a new team with name: {}", team.getTeamName());
         try {
-            Team team = this.teamService.createTeam(teamName);
-            TeamDTO t = new TeamDTO(team.getTeamName());
-            logger.info("Team created successfully with name: {}", teamName);
+            Team newTeam = this.teamService.createTeam(team);
+            TeamDTO t = new TeamDTO(newTeam);
+            logger.info("Team created successfully with name: {}", team.getTeamName());
             return ResponseEntity.ok().body(t);
         }
         catch (CustomException e) {

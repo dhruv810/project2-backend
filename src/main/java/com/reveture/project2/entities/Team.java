@@ -47,7 +47,7 @@ public class Team {
 
     @JsonIgnore
     @ManyToMany(mappedBy = "receiverTeam")
-    private List<TeamProposal> playerSponsors;
+    private List<TeamProposal> TeamSponsors;
 
     @JsonIgnore
     @OneToMany(mappedBy = "team", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
