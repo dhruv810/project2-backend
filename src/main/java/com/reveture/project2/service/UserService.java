@@ -1,6 +1,7 @@
 package com.reveture.project2.service;
 
 import com.reveture.project2.DTO.UserDTO;
+import com.reveture.project2.entities.Team;
 import com.reveture.project2.entities.User;
 import com.reveture.project2.exception.CustomException;
 import com.reveture.project2.repository.UserRepository;
@@ -40,6 +41,16 @@ public class UserService {
             catch (Exception e){
                 throw new CustomException("Failed to insert user: " + e.getMessage());
             }
+    }
+    public Team getTeamFromUser(User u) throws CustomException{
+
+        if (u.getTeam() == null){
+            throw new CustomException("User does not have a team associated with them.");
+        }
+
+        return u.getTeam();
+
+
     }
     public User getUserByUUID(UUID id) throws CustomException{
         String stringID = id.toString();
