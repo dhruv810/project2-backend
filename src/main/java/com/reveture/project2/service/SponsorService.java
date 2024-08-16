@@ -34,14 +34,14 @@ public class SponsorService {
         return this.sponsorRepository.save(sponsor);
     }
 
-    private void doesUserNameExists(String username) throws CustomException {
+    public void doesUserNameExists(String username) throws CustomException {
         Sponsor s = this.sponsorRepository.findByUsername(username);
         if (s != null) {
             throw new CustomException("Username already exists");
         }
     }
 
-    private Sponsor findSponsorIdIfExists(UUID sponsorId) throws CustomException {
+    public Sponsor findSponsorIdIfExists(UUID sponsorId) throws CustomException {
         Optional<Sponsor> s = this.sponsorRepository.findById(sponsorId);
         if (s.isEmpty()) {
             throw new CustomException("Sponsor does not exist");

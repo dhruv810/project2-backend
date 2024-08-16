@@ -175,7 +175,7 @@ body = "Sucess or Error message."
 ```
 
 ---
-## View sponsors
+## View sponsors -- Stretch goal
 
 This will allow user to see all sponsors for their team. Only manager will be able to see amount of sponsorship.
 
@@ -418,7 +418,7 @@ body = "Sucess or Error message."
 ```
 
 ---
-## See remaining balance
+## See remaining balance -- No Longer user story but default feature
 
 This will return remaining balance of Sponsor.
 

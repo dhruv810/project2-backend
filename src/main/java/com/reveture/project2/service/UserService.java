@@ -88,4 +88,8 @@ public class UserService {
             throw new CustomException("Password length must be at least 5 characters.");
         }
     }
+
+    public List<User> getAllUsers() {
+        return this.userRepository.findAll();
+    }
 }
