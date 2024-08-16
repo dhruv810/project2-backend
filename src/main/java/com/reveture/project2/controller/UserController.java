@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -21,7 +22,8 @@ public class UserController {
 
     @GetMapping("/user")
     public ResponseEntity<?> test() {
-        return ResponseEntity.ok().body("Hello user");
+        List<User> users = this.userService.getAllUsers();
+        return ResponseEntity.ok().body(users);
     }
 
     @PostMapping("/create")
@@ -40,7 +42,7 @@ public class UserController {
 
     @PatchMapping("/role/{newRole}")
     public ResponseEntity<String> updateUserRole(@PathVariable String newRole){
-        String StringUUID = "b065e857-9770-4c9e-bbb9-90a4d3dbd048";
+        String StringUUID = "1ce2f045-8d7c-4341-bfe4-47cd393cbc8b";
         String non_existient_UUID = "b065e857-9770-4c9e-bbb9-90a4d3dbd047"; // for testing reasons, i made a non-existent user
         UUID dummmyID = UUID.fromString(StringUUID);
         try {

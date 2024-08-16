@@ -55,7 +55,7 @@ public class SponsorController {
     @PatchMapping("/budget/{newBudget}")
     public ResponseEntity<?> updateBudget(@PathVariable Double newBudget) {
         // TODO: get sponsor id from logged in sponsor
-        UUID sponsorid = UUID.fromString("ac418df2-f95c-4452-a8b3-1aca202bb294");
+        UUID sponsorid = UUID.fromString("18b37fd8-24d7-4564-afc3-30d9788b5b19");
         try {
             Sponsor newSponsor = this.sponsorService.updateBudget(sponsorid, newBudget);
 //            SponsorDTO s = new SponsorDTO(newSponsor);
@@ -104,7 +104,7 @@ public class SponsorController {
 
     @GetMapping("/proposals/{status}")
     public ResponseEntity<?> getAllProposalsBySponsorByStatus(@PathVariable String status) {
-        UUID sponsorid = UUID.fromString("ac418df2-f95c-4452-a8b3-1aca202bb294");
+        UUID sponsorid = UUID.fromString("18b37fd8-24d7-4564-afc3-30d9788b5b19");
         try {
             List<TeamProposal> proposals = this.teamProposalService.getAllProposalsBySponsor(sponsorid, status);
             List<TeamProposalDTO> res = new ArrayList<>();

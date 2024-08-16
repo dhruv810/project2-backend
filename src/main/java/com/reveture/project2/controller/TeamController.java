@@ -54,7 +54,7 @@ public class TeamController {
         // change id to be able to get the actual team id from logged in user
         // change every instance of teamId to the actual id upon change
 
-        UUID teamId = UUID.fromString("37f5a075-04f0-4ae7-afe4-6e7c181fcaa9");
+        UUID teamId = UUID.fromString("6d410d08-08e8-4b0d-928b-27be7d8ba572");
 
         logger.info("Received request to change team name from {} to {}", teamId, newTeamName);
         try {
