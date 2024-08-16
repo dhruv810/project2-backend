@@ -35,9 +35,6 @@ public class TeamProposal {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID proposalId;
 
-//    @Column(name="type", nullable = false)
-//    private String type;
-
     @Column(name = "status", nullable = false)
     private String status;
 
@@ -49,9 +46,6 @@ public class TeamProposal {
     @JoinColumn(name = "team", nullable = true)
     private Team receiverTeam;
 
-//    @ManyToOne(fetch = FetchType.EAGER)
-//    @JoinColumn(name="player", nullable = true)
-//    private User receiverPlayer;
 
     @Column(name = "amount", nullable = false)
     private Double amount;

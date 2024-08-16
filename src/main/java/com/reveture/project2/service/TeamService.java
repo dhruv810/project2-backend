@@ -23,17 +23,15 @@ public class TeamService {
 
     // team creation only done by manager's who are not part of a team
     // returns list of uuid, teamname, list of players, and list of managers
-    public Team createTeam(String teamName) throws CustomException {
+    public Team createTeam(Team team) throws CustomException {
         // name checks
-        if (teamName.length() < 5) {
+        if (team.getTeamName().length() < 5) {
             throw new CustomException("Team name must be at least 5 digit long");
-        } else if (teamName.isEmpty()) {
+        } else if (team.getTeamName().isEmpty()) {
             throw new CustomException("Name cannot be empty");
         }
-        doesTeamNameExist(teamName);
+        doesTeamNameExist(team.getTeamName());
 
-        Team team = new Team();
-        team.setTeamName(teamName);
         team.setBalance(0.0);
 
         return this.teamRepository.save(team);
