@@ -11,5 +11,5 @@ import java.util.UUID;
 @Repository
 public interface TeamProposalRepository extends JpaRepository<TeamProposal, UUID> {
 
-    List<TeamProposal> findAllBySenderSponsor(Sponsor s);
+    List<TeamProposal> findAllBySenderSponsorAndStatus(Sponsor s, String accepted);
 }

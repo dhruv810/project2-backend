@@ -32,13 +32,19 @@ public class TeamProposalService {
         } else if (teamProposal.getAmount() > s.getBudget()) {
             throw new CustomException("You cannot send proposal for " + teamProposal.getAmount() + "  while you only have " + s.getBudget());
         }
-
+        this.sponsorService.updateBudget(s.getSponsorId(), s.getBudget() - teamProposal.getAmount());
         return this.teamProposalRepository.save(teamProposal);
     }
 
     public List<TeamProposal> getAllAcceptedProposalsBySponsor(UUID sponsorid) throws CustomException {
         Sponsor s = this.sponsorService.findSponsorIdIfExists(sponsorid);
-        return this.teamProposalRepository.findAllBySenderSponsor(s);
+        return this.teamProposalRepository.findAllBySenderSponsorAndStatus(s, "Accepted");
+
+    }
+
+    public List<TeamProposal> getAllProposalsBySponsor(UUID sponsorid, String status) throws CustomException {
+        Sponsor s = this.sponsorService.findSponsorIdIfExists(sponsorid);
+        return this.teamProposalRepository.findAllBySenderSponsorAndStatus(s, status);
 
     }
 }

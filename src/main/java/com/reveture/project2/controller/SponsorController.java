@@ -1,6 +1,7 @@
 package com.reveture.project2.controller;
 
 import com.reveture.project2.DTO.SponsorDTO;
+import com.reveture.project2.DTO.TeamProposalDTO;
 import com.reveture.project2.entities.Sponsor;
 import com.reveture.project2.entities.TeamProposal;
 import com.reveture.project2.exception.CustomException;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -85,16 +87,37 @@ public class SponsorController {
     @GetMapping("/teams")
     public ResponseEntity<?> getAllTeamsSponsorInvestedIn() {
         // TODO: get sponsor id from logged in sponsor
+        UUID sponsorid = UUID.fromString("ac418df2-f95c-4452-a8b3-1aca202bb294");
         try {
-            UUID sponsorid = UUID.fromString("ac418df2-f95c-4452-a8b3-1aca202bb294");
             List<TeamProposal> sponsoredTeams = this.teamProposalService.getAllAcceptedProposalsBySponsor(sponsorid);
-            return ResponseEntity.ok().body(sponsoredTeams);
+            List<TeamProposalDTO> res = new ArrayList<>();
+            sponsoredTeams.forEach(teamProposal -> {
+                res.add(new TeamProposalDTO(teamProposal));
+            });
+            return ResponseEntity.ok().body(res);
         } catch (CustomException e) {
             return ResponseEntity.status(400).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(500).body(e.getMessage());
         }
-
     }
+
+    @GetMapping("/proposals/{status}")
+    public ResponseEntity<?> getAllProposalsBySponsorByStatus(@PathVariable String status) {
+        UUID sponsorid = UUID.fromString("ac418df2-f95c-4452-a8b3-1aca202bb294");
+        try {
+            List<TeamProposal> proposals = this.teamProposalService.getAllProposalsBySponsor(sponsorid, status);
+            List<TeamProposalDTO> res = new ArrayList<>();
+            proposals.forEach(teamProposal -> {
+                res.add(new TeamProposalDTO(teamProposal));
+            });
+            return ResponseEntity.ok().body(res);
+        } catch (CustomException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+    }
+
 
 }
