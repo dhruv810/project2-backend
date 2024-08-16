@@ -1,10 +1,15 @@
 package com.reveture.project2.service;
 
+import com.reveture.project2.entities.Sponsor;
 import com.reveture.project2.entities.Team;
 import com.reveture.project2.exception.CustomException;
 import com.reveture.project2.repository.TeamRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class TeamService {
@@ -17,21 +22,62 @@ public class TeamService {
     }
 
     // team creation only done by manager's who are not part of a team
-    // returns list of player and list of managers
+    // returns list of uuid, teamname, list of players, and list of managers
     public Team createTeam(String teamName) throws CustomException {
-        // checks for name
+        // name checks
         if (teamName.length() < 5) {
             throw new CustomException("Team name must be at least 5 digit long");
         } else if (teamName.isEmpty()) {
             throw new CustomException("Name cannot be empty");
         }
+        doesTeamNameExist(teamName);
 
         Team team = new Team();
         team.setTeamName(teamName);
-
-        //TODO: add check for duplicate team name?
+        team.setBalance(0.0);
 
         return this.teamRepository.save(team);
+    }
+
+
+    // team editing only done by managers who are part of the team
+    // returns list of uuid, teamname, list of players, and list of managers
+    public Team updateTeamName(UUID teamId, String newTeamName) throws CustomException {
+        // name checks
+        if (newTeamName.length() < 5) {
+            throw new CustomException("Team name must be at least 5 digit long");
+        } else if (newTeamName.isEmpty()) {
+            throw new CustomException("Name cannot be empty");
+        }
+        doesTeamNameExist(newTeamName);
+
+        // save
+        Team team = this.findTeamByIdIfExists(teamId);
+        team.setTeamName(newTeamName);
+        return this.teamRepository.save(team);
+    }
+
+    public Team findTeamByIdIfExists(UUID teamId) throws CustomException {
+        Optional<Team> t = this.teamRepository.findById(teamId);
+        if (t.isEmpty()) {
+            throw new CustomException("Team does not exist");
+        }
+        return t.get();
+    }
+
+    // team name check
+    private void doesTeamNameExist(String teamName) throws CustomException {
+        Team t = this.teamRepository.findByTeamName(teamName);
+        if (t != null) {
+            throw new CustomException("Team name already exists");
+        }
+    }
+
+
+    // get all teams
+    public List<Team> getAllTeams()  {
+        List<Team> teamList = this.teamRepository.findAll();
+        return teamList;
     }
 
 
