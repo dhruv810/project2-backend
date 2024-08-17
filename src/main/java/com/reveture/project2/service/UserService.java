@@ -1,7 +1,10 @@
 package com.reveture.project2.service;
 
+import com.reveture.project2.DTO.TeamProposalDTO;
+import com.reveture.project2.DTO.TeamProposalDTO_PLAYER;
 import com.reveture.project2.DTO.UserDTO;
 import com.reveture.project2.entities.Team;
+import com.reveture.project2.entities.TeamProposal;
 import com.reveture.project2.entities.User;
 import com.reveture.project2.exception.CustomException;
 import com.reveture.project2.repository.UserRepository;
@@ -10,6 +13,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import java.util.Optional;
@@ -33,6 +38,7 @@ public class UserService {
     public User addNewUser(User u) throws CustomException{
         validateUser(u);
             try {
+
                 return userRepository.saveAndFlush(u);
             }
             catch (DataIntegrityViolationException dataException){
@@ -41,6 +47,49 @@ public class UserService {
             catch (Exception e){
                 throw new CustomException("Failed to insert user: " + e.getMessage());
             }
+    }
+
+    public List<TeamProposalDTO> getTeamProposalsForManager(List<TeamProposal> teamProposals) throws CustomException{
+        List<TeamProposalDTO> returnedList = new ArrayList<>();
+        try {
+            for (TeamProposal proposal : teamProposals) {
+                returnedList.add(new TeamProposalDTO(proposal));
+            }
+            return returnedList;
+        } catch (Exception e){
+            throw new CustomException("Problem when creating teamProposalDTO from TeamProposal objects");
+        }
+    }
+
+    public List<TeamProposalDTO_PLAYER> getTeamProposalsForPlayer(List<TeamProposal> teamProposals) throws CustomException{
+        List<TeamProposalDTO_PLAYER> returnedList = new ArrayList<>();
+        try {
+            for (TeamProposal proposal : teamProposals) {
+                returnedList.add(new TeamProposalDTO_PLAYER(proposal));
+            }
+            return returnedList;
+        } catch (Exception e){
+            throw new CustomException("Problem when creating teamProposalDTO_PLAYER from TeamProposal objects");
+        }
+    }
+    public boolean userTypeIsPlayer(User u) throws CustomException{
+        if (u.getRole() == null){
+            String s = String.format("The role of user %s is null",u.getUserId().toString());
+            throw new CustomException(s);
+        }
+        if (u.getRole().equals("Player")){
+            return true;
+        }
+        return false;
+
+    }
+    public List<TeamProposal> getTeamProposals(Team t) throws CustomException{
+        List<TeamProposal> teamProposals = t.getTeamSponsors();
+        if (teamProposals == null){
+            throw new CustomException("There are no team proposals associated with this team");
+        }
+        return teamProposals;
+
     }
     public Team getTeamFromUser(User u) throws CustomException{
 
@@ -87,6 +136,10 @@ public class UserService {
         } else if (u.getPassword().length() < 5) {
             throw new CustomException("Password length must be at least 5 characters.");
         }
+        if( !u.getRole().equals("Player") && !u.getRole().equals("Manager")){
+            throw new CustomException("User type must either be 'Player' or 'Manager', case sensitive.");
+        }
+
     }
 
     public List<User> getAllUsers() {

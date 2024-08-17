@@ -1,7 +1,9 @@
 package com.reveture.project2.controller;
 
+import com.reveture.project2.DTO.TeamProposalDTO;
 import com.reveture.project2.DTO.UserDTO;
 import com.reveture.project2.entities.Team;
+import com.reveture.project2.entities.TeamProposal;
 import com.reveture.project2.entities.User;
 import com.reveture.project2.exception.CustomException;
 import com.reveture.project2.repository.UserRepository;
@@ -12,8 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /*
 
@@ -49,6 +50,9 @@ body = [{
 public class UserController {
     private final UserService userService;
 
+
+    //TODO:We need to actually test this, as I haven't tested since there is no way to create a proposal object yet
+    // (will be completed in Sponsor Stories)
     @GetMapping("/sponsors")
     public ResponseEntity<?> seeSponsorships(){
         String StringUUID = "b065e857-9770-4c9e-bbb9-90a4d3dbd048";
@@ -56,9 +60,17 @@ public class UserController {
         UUID dummmyID = UUID.fromString(StringUUID);
         try {
             User u = userService.getUserByUUID(dummmyID);
-            Team userTeam = userService.getTeamFromUser(u);
+            Team t = userService.getTeamFromUser(u);
+            List<TeamProposal> proposalList = userService.getTeamProposals(t);
+            boolean userIsPlayer = userService.userTypeIsPlayer(u);
 
+            return ResponseEntity.ok(
 
+                    userIsPlayer?
+                     userService.getTeamProposalsForPlayer(proposalList)
+                    : userService.getTeamProposalsForManager(proposalList)
+
+            );
         } catch (CustomException e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 
@@ -67,11 +79,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
 
         }
-
-
-        return ResponseEntity.ok("hi");
     }
-
     @GetMapping("/user")
     public ResponseEntity<?> test() {
         List<User> users = this.userService.getAllUsers();
