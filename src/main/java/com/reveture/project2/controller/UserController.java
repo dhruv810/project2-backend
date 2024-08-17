@@ -3,14 +3,13 @@ package com.reveture.project2.controller;
 import com.reveture.project2.DTO.UserDTO;
 import com.reveture.project2.entities.User;
 import com.reveture.project2.exception.CustomException;
-import com.reveture.project2.repository.UserRepository;
 import com.reveture.project2.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,18 +22,21 @@ public class UserController {
     @GetMapping("/user")
     public ResponseEntity<?> test() {
         List<User> users = this.userService.getAllUsers();
-        return ResponseEntity.ok().body(users);
+        List<UserDTO> res = new ArrayList<>();
+        users.forEach(u -> {
+            res.add(new UserDTO(u));
+        });
+        return ResponseEntity.ok().body(res);
     }
 
     @PostMapping("/create")
     public ResponseEntity<?> createUser(@RequestBody User u ){
         try{
-            return ResponseEntity.ok(userService.addNewUser(u));
+            User user = userService.addNewUser(u);
+            return ResponseEntity.ok().body(new UserDTO(user));
         } catch (CustomException e){
-
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-
-        }catch (Exception ex){
+        } catch (Exception ex){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
         }
 

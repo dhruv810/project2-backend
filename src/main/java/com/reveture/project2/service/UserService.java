@@ -32,6 +32,7 @@ public class UserService {
     public User addNewUser(User u) throws CustomException{
         validateUser(u);
             try {
+                u.setSalary(0.0);
                 return userRepository.saveAndFlush(u);
             }
             catch (DataIntegrityViolationException dataException){
@@ -80,5 +81,13 @@ public class UserService {
 
     public List<User> getAllUsers() {
         return this.userRepository.findAll();
+    }
+
+    public User getUserByUsernameAndPassword(String username, String password) throws CustomException {
+        Optional<User> user = this.userRepository.findByUsernameAndPassword(username, password);
+        if (user.isEmpty()) {
+            throw new CustomException("Enter Valid username and Password");
+        }
+        return user.get();
     }
 }

@@ -62,4 +62,11 @@ public class SponsorService {
         return this.sponsorRepository.save(s);
     }
 
+    public Sponsor getSponsorByUsernameAndPassword(String username, String password) throws CustomException {
+        Optional<Sponsor> sponsor = this.sponsorRepository.findByUsernameAndPassword(username, password);
+        if (sponsor.isEmpty()) {
+            throw new CustomException("Invalid username and password");
+        }
+        return sponsor.get();
+    }
 }

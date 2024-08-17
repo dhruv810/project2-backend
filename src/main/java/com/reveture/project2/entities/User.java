@@ -63,13 +63,12 @@ public class User {
     @JoinColumn(name = "team")
     private Team team;
 
-    @Column(name = "salary", nullable = false)
+    @Column(name = "salary")
     private Double salary;
 
     @JsonIgnore
     @OneToMany(mappedBy = "receiverPlayer", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<TeamInvite> team_invites;
-
 
 }
 
