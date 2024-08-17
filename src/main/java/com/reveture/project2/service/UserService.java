@@ -1,10 +1,12 @@
 package com.reveture.project2.service;
 
 import com.reveture.project2.DTO.UserDTO;
+import com.reveture.project2.entities.Team;
 import com.reveture.project2.entities.User;
 import com.reveture.project2.exception.CustomException;
 import com.reveture.project2.repository.UserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,8 +21,8 @@ import java.util.UUID;
 @AllArgsConstructor
 public class UserService {
 
+    @Autowired
     private final UserRepository userRepository;
-
 
 
     //TODO: this works fine when a Team is not passed as param, perhaps we should check if
@@ -89,5 +91,11 @@ public class UserService {
             throw new CustomException("Enter Valid username and Password");
         }
         return user.get();
+    }
+
+    public User updateTeam(User u, Team newTeam) throws CustomException {
+        User user = getUserByUUID(u.getUserId());
+        user.setTeam(newTeam);
+        return userRepository.saveAndFlush(user);
     }
 }

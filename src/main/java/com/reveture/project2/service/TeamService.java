@@ -5,6 +5,7 @@ import com.reveture.project2.entities.Team;
 import com.reveture.project2.exception.CustomException;
 import com.reveture.project2.repository.TeamRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,9 +26,10 @@ public class TeamService {
     // returns list of uuid, teamname, list of players, and list of managers
     public Team createTeam(Team team) throws CustomException {
         // name checks
-        if (team.getTeamName().length() < 5) {
+
+        if (team.getTeamName().isEmpty()) {
             throw new CustomException("Team name must be at least 5 digit long");
-        } else if (team.getTeamName().isEmpty()) {
+        } else if (team.getTeamName().length() < 5) {
             throw new CustomException("Name cannot be empty");
         }
         doesTeamNameExist(team.getTeamName());
