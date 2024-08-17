@@ -18,9 +18,9 @@ import java.util.UUID;
 public class TeamInvite {
 
     @Id
-    @Column(name="proposal_id", nullable = false, updatable = false)
+    @Column(name="invite_id", nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID proposalId;
+    private UUID inviteId;
 
     @Column(name="status", nullable = false)
     private String status;
