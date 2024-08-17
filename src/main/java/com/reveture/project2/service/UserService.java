@@ -55,16 +55,24 @@ public class UserService {
 
     }
 
-    public User updateRole(User u, String newRole) throws CustomException{
+    public User updateRole(UUID u, String newRole, UUID manager_id) throws CustomException{
         if (!newRole.equals("Player") && !newRole.equals("Manager") ){
             throw new CustomException("Please ensure that updated role is either 'Player' or 'Manager'");
         }
-        if (newRole.equals(u.getRole())){
+        User manager = this.getUserByUUID(manager_id);
+        User user = this.getUserByUUID(u);
+        if (manager.getTeam() == null || user.getUserId() == null) {
+            throw new CustomException("You or Player are not part of any team, so you cannot change anyone's role");
+        }
+        if (!manager.getTeam().getTeamId().equals(user.getTeam().getTeamId())) {
+            throw new CustomException("You cannot change role of User that are not part of your team");
+        }
+        if (newRole.equals(user.getRole())){
             String errorMessage = String.format("User role could not be updated: user role is already set to '%s'", newRole);
             throw new CustomException(errorMessage);
         }
-        u.setRole(newRole);
-        return userRepository.saveAndFlush(u);
+        user.setRole(newRole);
+        return userRepository.saveAndFlush(user);
     }
 
     private void validateUser(User u) throws CustomException {
@@ -78,6 +86,9 @@ public class UserService {
             throw new CustomException("Username length must be at least 5 characters.");
         } else if (u.getPassword().length() < 5) {
             throw new CustomException("Password length must be at least 5 characters.");
+        }
+        else if (!u.getRole().equals("Player") && !u.getRole().equals("Manager") ){
+            throw new CustomException("Please ensure that updated role is either 'Player' or 'Manager'");
         }
     }
 
