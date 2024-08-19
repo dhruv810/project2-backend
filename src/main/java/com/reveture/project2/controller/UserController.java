@@ -6,43 +6,17 @@ import com.reveture.project2.entities.Team;
 import com.reveture.project2.entities.TeamProposal;
 import com.reveture.project2.entities.User;
 import com.reveture.project2.exception.CustomException;
-import com.reveture.project2.repository.UserRepository;
 import com.reveture.project2.service.UserService;
+import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.HttpClientErrorException;
 
-import java.util.*;
-
-/*
-
-View sponsors
-This will allow user to see all sponsors for their team. Only manager will be able to see amount of sponsorship.
-
-Request:
-url = GET : "/sponsors"
-
-Response
-For Player:
-
-body = [{
-    id: UUID
-    username: String
-    category: String
-    name: String
-}, ...]
-For Manager:
-
-body = [{
-    id: UUID
-    username: String
-    category: String
-    name: String
-    amount: Double
-}, ...]
- */
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/user")
@@ -83,37 +57,45 @@ public class UserController {
     @GetMapping("/user")
     public ResponseEntity<?> test() {
         List<User> users = this.userService.getAllUsers();
-        return ResponseEntity.ok().body(users);
+        List<UserDTO> res = new ArrayList<>();
+        users.forEach(u -> {
+            res.add(new UserDTO(u));
+        });
+        return ResponseEntity.ok().body(res);
     }
 
     @PostMapping("/create")
     public ResponseEntity<?> createUser(@RequestBody User u ){
         try{
-            return ResponseEntity.ok(userService.addNewUser(u));
+            User user = userService.addNewUser(u);
+            return ResponseEntity.ok().body(new UserDTO(user));
         } catch (CustomException e){
-
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-
-        }catch (Exception ex){
+        } catch (Exception ex){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
         }
 
     }
 
     @PatchMapping("/role/{newRole}")
-    public ResponseEntity<String> updateUserRole(@PathVariable String newRole){
-        String StringUUID = "1ce2f045-8d7c-4341-bfe4-47cd393cbc8b";
-        String non_existient_UUID = "b065e857-9770-4c9e-bbb9-90a4d3dbd047"; // for testing reasons, i made a non-existent user
-        UUID dummmyID = UUID.fromString(StringUUID);
+    public ResponseEntity<String> updateUserRole(@PathVariable String newRole, @RequestParam UUID player_id, HttpSession session){
         try {
-            User u = userService.getUserByUUID(dummmyID);
+            User user = (User) session.getAttribute("user");
+            if (user == null) {
+                return ResponseEntity.status(400).body("Login first");
+            }
+            else if (user.getRole().equals("Player")) {
+                return ResponseEntity.status(400).body("You are not manager. Only manager can change role");
+            }
+            else if (user.getUserId().equals(player_id)) {
+                return ResponseEntity.status(400).body("You cannot change your own role");
+            }
 
-            userService.updateRole(u,newRole);
-            String s = String.format("User with ID %s role has been updated to role %s",StringUUID,newRole);
+            userService.updateRole(player_id, newRole, user.getUserId());
+            String s = String.format("User with ID %s role has been updated to role %s", player_id, newRole);
             return ResponseEntity.ok(s);
         } catch(CustomException e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-
         } catch (Exception ex){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
         }

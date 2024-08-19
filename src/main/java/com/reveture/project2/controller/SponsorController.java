@@ -7,7 +7,9 @@ import com.reveture.project2.entities.TeamProposal;
 import com.reveture.project2.exception.CustomException;
 import com.reveture.project2.service.SponsorService;
 import com.reveture.project2.service.TeamProposalService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -53,11 +55,13 @@ public class SponsorController {
     }
 
     @PatchMapping("/budget/{newBudget}")
-    public ResponseEntity<?> updateBudget(@PathVariable Double newBudget) {
-        // TODO: get sponsor id from logged in sponsor
-        UUID sponsorid = UUID.fromString("18b37fd8-24d7-4564-afc3-30d9788b5b19");
+    public ResponseEntity<?> updateBudget(@PathVariable Double newBudget, HttpSession session) {
         try {
-            Sponsor newSponsor = this.sponsorService.updateBudget(sponsorid, newBudget);
+            Sponsor sponsor = (Sponsor) session.getAttribute("sponsor");
+            if (sponsor == null) {
+                return ResponseEntity.status(400).body("Login first");
+            }
+            Sponsor newSponsor = this.sponsorService.updateBudget(sponsor.getSponsorId(), newBudget);
 //            SponsorDTO s = new SponsorDTO(newSponsor);
             return ResponseEntity.ok().body("Successfully updated budget to " + newSponsor.getBudget());
         } catch (CustomException e) {
@@ -72,11 +76,16 @@ public class SponsorController {
     This gives error that cant add because team do not exist.
     */
     @PostMapping("/proposal")
-    public ResponseEntity<?> sendProposal(@RequestBody TeamProposal teamProposal) {
+    public ResponseEntity<?> sendProposal(@RequestBody TeamProposal teamProposal, HttpSession session) {
         try {
+            Sponsor sponsor = (Sponsor) session.getAttribute("sponsor");
+            if (sponsor == null) {
+                return ResponseEntity.status(400).body("Login first");
+            }
+            teamProposal.setSenderSponsor(sponsor);
             teamProposal.setStatus("Pending");
             TeamProposal tp = this.teamProposalService.createProposal(teamProposal);
-            return ResponseEntity.ok().body(tp);
+            return ResponseEntity.ok().body(new TeamProposalDTO(tp));
         } catch (CustomException e) {
             return ResponseEntity.status(400).body(e.getMessage());
         } catch (Exception e) {
@@ -85,11 +94,13 @@ public class SponsorController {
     }
 
     @GetMapping("/teams")
-    public ResponseEntity<?> getAllTeamsSponsorInvestedIn() {
-        // TODO: get sponsor id from logged in sponsor
-        UUID sponsorid = UUID.fromString("ac418df2-f95c-4452-a8b3-1aca202bb294");
+    public ResponseEntity<?> getAllTeamsSponsorInvestedIn(HttpSession session) {
         try {
-            List<TeamProposal> sponsoredTeams = this.teamProposalService.getAllAcceptedProposalsBySponsor(sponsorid);
+            Sponsor sponsor = (Sponsor) session.getAttribute("sponsor");
+            if (sponsor == null) {
+                return ResponseEntity.status(400).body("Login first");
+            }
+            List<TeamProposal> sponsoredTeams = this.teamProposalService.getAllAcceptedProposalsBySponsor(sponsor.getSponsorId());
             List<TeamProposalDTO> res = new ArrayList<>();
             sponsoredTeams.forEach(teamProposal -> {
                 res.add(new TeamProposalDTO(teamProposal));
@@ -103,10 +114,13 @@ public class SponsorController {
     }
 
     @GetMapping("/proposals/{status}")
-    public ResponseEntity<?> getAllProposalsBySponsorByStatus(@PathVariable String status) {
-        UUID sponsorid = UUID.fromString("18b37fd8-24d7-4564-afc3-30d9788b5b19");
+    public ResponseEntity<?> getAllProposalsBySponsorByStatus(@PathVariable String status, HttpSession session) {
         try {
-            List<TeamProposal> proposals = this.teamProposalService.getAllProposalsBySponsor(sponsorid, status);
+            Sponsor sponsor = (Sponsor) session.getAttribute("sponsor");
+            if (sponsor == null) {
+                return ResponseEntity.status(400).body("Login first");
+            }
+            List<TeamProposal> proposals = this.teamProposalService.getAllProposalsBySponsor(sponsor.getSponsorId(), status);
             List<TeamProposalDTO> res = new ArrayList<>();
             proposals.forEach(teamProposal -> {
                 res.add(new TeamProposalDTO(teamProposal));

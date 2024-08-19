@@ -23,7 +23,11 @@ public class UserDTO {
         this.userId = user.getUserId();
         this.username = user.getUsername();
         this.role = user.getRole();
-        this.teamName = user.getTeam().getTeamName();
+        if (user.getTeam() != null)
+            this.teamName = user.getTeam().getTeamName();
+        else {
+            this.teamName = "None";
+        }
         this.salary = user.getSalary();
     }
 

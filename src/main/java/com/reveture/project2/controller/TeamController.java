@@ -1,12 +1,12 @@
 package com.reveture.project2.controller;
 
-import com.reveture.project2.DTO.SponsorDTO;
 import com.reveture.project2.DTO.TeamDTO;
-import com.reveture.project2.entities.Sponsor;
 import com.reveture.project2.entities.Team;
+import com.reveture.project2.entities.User;
 import com.reveture.project2.exception.CustomException;
-import com.reveture.project2.service.SponsorService;
 import com.reveture.project2.service.TeamService;
+import com.reveture.project2.service.UserService;
+import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,16 +15,18 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 public class TeamController {
     private static final Logger logger = LoggerFactory.getLogger(TeamService.class);
     @Autowired
     final private TeamService teamService;
+    @Autowired
+    final private UserService userService;
 
-    public TeamController(TeamService teamService) {
+    public TeamController(TeamService teamService, UserService userService) {
         this.teamService = teamService;
+        this.userService = userService;
     }
 
     @GetMapping("/team")
@@ -36,15 +38,23 @@ public class TeamController {
             res.add(new TeamDTO(team));
         });
 
-        return ResponseEntity.ok().body(teamList);
+        return ResponseEntity.ok().body(res);
     }
 
     @PostMapping("/team")
-    public ResponseEntity<?> createTeam(@RequestBody Team team) {
+    public ResponseEntity<?> createTeam(@RequestBody Team team, HttpSession session) {
         logger.info("Received request to create a new team with name: {}", team.getTeamName());
         try {
+            User user = (User) session.getAttribute("user");
+            if (user == null) {
+                return ResponseEntity.status(400).body("Login first");
+            }
+            if (! user.getRole().equals("Manager")) {
+                return ResponseEntity.status(400).body("You are not manager");
+            }
             Team newTeam = this.teamService.createTeam(team);
             TeamDTO t = new TeamDTO(newTeam);
+            this.userService.updateTeam(user, newTeam);
             logger.info("Team created successfully with name: {}", team.getTeamName());
             return ResponseEntity.ok().body(t);
         }
@@ -55,21 +65,26 @@ public class TeamController {
     }
 
     @PatchMapping("/team/name/{newTeamName}")
-    public ResponseEntity<?> updateTeamName(String Id, @PathVariable String newTeamName) {
-        //TODO:
-        // change id to be able to get the actual team id from logged in user
-        // change every instance of teamId to the actual id upon change
+    public ResponseEntity<?> updateTeamName(@PathVariable String newTeamName, HttpSession session) {
 
-        UUID teamId = UUID.fromString("6d410d08-08e8-4b0d-928b-27be7d8ba572");
-
-        logger.info("Received request to change team name from {} to {}", teamId, newTeamName);
         try {
-            Team team = this.teamService.updateTeamName(teamId, newTeamName);
-            logger.info("Team name changed successfully from {} to {}", teamId, team.getTeamName());
-            return ResponseEntity.ok().body("Team name changed successfully from " + teamId + " to " + team.getTeamName());
+            User user = (User) session.getAttribute("user");
+            if (user == null) {
+                return ResponseEntity.status(400).body("Login first");
+            }
+            if (! user.getRole().equals("Manager")) {
+                return ResponseEntity.status(400).body("You are not manager");
+            }
+            if (user.getTeam() == null) {
+                return ResponseEntity.status(400).body("You are not part of any team");
+            }
+
+            Team team = this.teamService.updateTeamName(user.getTeam().getTeamId(), newTeamName);
+            logger.info("Team name changed successfully from {} to {}", user.getTeam().getTeamId(), team.getTeamName());
+            return ResponseEntity.ok().body("Team name changed successfully from " + user.getTeam().getTeamId() + " to " + team.getTeamName());
         }
         catch (CustomException e) {
-            logger.error("Failed to change team name from {} to {}: {}", teamId, newTeamName, e.getMessage());
+            logger.error("Failed to change team name because of: {}", e.getMessage());
             return ResponseEntity.status(400).body(e.getMessage());
         }
     }

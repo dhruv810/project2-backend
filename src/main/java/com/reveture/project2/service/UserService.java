@@ -4,11 +4,11 @@ import com.reveture.project2.DTO.TeamProposalDTO;
 import com.reveture.project2.DTO.TeamProposalDTO_PLAYER;
 import com.reveture.project2.DTO.UserDTO;
 import com.reveture.project2.entities.Team;
-import com.reveture.project2.entities.TeamProposal;
 import com.reveture.project2.entities.User;
 import com.reveture.project2.exception.CustomException;
 import com.reveture.project2.repository.UserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,8 +25,8 @@ import java.util.UUID;
 @AllArgsConstructor
 public class UserService {
 
+    @Autowired
     private final UserRepository userRepository;
-
 
 
     //TODO: this works fine when a Team is not passed as param, perhaps we should check if
@@ -38,7 +38,7 @@ public class UserService {
     public User addNewUser(User u) throws CustomException{
         validateUser(u);
             try {
-
+                u.setSalary(0.0);
                 return userRepository.saveAndFlush(u);
             }
             catch (DataIntegrityViolationException dataException){
@@ -112,16 +112,24 @@ public class UserService {
 
     }
 
-    public User updateRole(User u, String newRole) throws CustomException{
+    public User updateRole(UUID u, String newRole, UUID manager_id) throws CustomException{
         if (!newRole.equals("Player") && !newRole.equals("Manager") ){
             throw new CustomException("Please ensure that updated role is either 'Player' or 'Manager'");
         }
-        if (newRole.equals(u.getRole())){
+        User manager = this.getUserByUUID(manager_id);
+        User user = this.getUserByUUID(u);
+        if (manager.getTeam() == null || user.getUserId() == null) {
+            throw new CustomException("You or Player are not part of any team, so you cannot change anyone's role");
+        }
+        if (!manager.getTeam().getTeamId().equals(user.getTeam().getTeamId())) {
+            throw new CustomException("You cannot change role of User that are not part of your team");
+        }
+        if (newRole.equals(user.getRole())){
             String errorMessage = String.format("User role could not be updated: user role is already set to '%s'", newRole);
             throw new CustomException(errorMessage);
         }
-        u.setRole(newRole);
-        return userRepository.saveAndFlush(u);
+        user.setRole(newRole);
+        return userRepository.saveAndFlush(user);
     }
 
     private void validateUser(User u) throws CustomException {
@@ -136,13 +144,26 @@ public class UserService {
         } else if (u.getPassword().length() < 5) {
             throw new CustomException("Password length must be at least 5 characters.");
         }
-        if( !u.getRole().equals("Player") && !u.getRole().equals("Manager")){
-            throw new CustomException("User type must either be 'Player' or 'Manager', case sensitive.");
+        else if (!u.getRole().equals("Player") && !u.getRole().equals("Manager") ){
+            throw new CustomException("Please ensure that updated role is either 'Player' or 'Manager'");
         }
-
     }
 
     public List<User> getAllUsers() {
         return this.userRepository.findAll();
+    }
+
+    public User getUserByUsernameAndPassword(String username, String password) throws CustomException {
+        Optional<User> user = this.userRepository.findByUsernameAndPassword(username, password);
+        if (user.isEmpty()) {
+            throw new CustomException("Enter Valid username and Password");
+        }
+        return user.get();
+    }
+
+    public User updateTeam(User u, Team newTeam) throws CustomException {
+        User user = getUserByUUID(u.getUserId());
+        user.setTeam(newTeam);
+        return userRepository.saveAndFlush(user);
     }
 }
