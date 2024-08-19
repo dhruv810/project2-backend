@@ -21,14 +21,28 @@ import java.util.UUID;
 public class UserController {
     private final UserService userService;
 
+    // view all users on team
     @GetMapping("/user")
-    public ResponseEntity<?> test() {
-        List<User> users = this.userService.getAllUsers();
-        List<UserDTO> res = new ArrayList<>();
-        users.forEach(u -> {
-            res.add(new UserDTO(u));
-        });
-        return ResponseEntity.ok().body(res);
+    public ResponseEntity<?> viewUsers(HttpSession session) {
+        try {
+            User user = (User) session.getAttribute("user");
+
+            //user checks
+            if (user == null) {
+                return ResponseEntity.status(400).body("Login first");
+            } else if (!user.getRole().equals("Manager")) {
+                return ResponseEntity.status(400).body("You are not a manager. Only managers can view all team members");
+            }
+
+            List<User> users = this.userService.getAllUsers();
+            List<UserDTO> res = new ArrayList<>();
+            users.forEach(u -> {
+                res.add(new UserDTO(u));
+            });
+            return ResponseEntity.ok().body(res);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     @PostMapping("/create")
@@ -66,10 +80,33 @@ public class UserController {
         } catch (Exception ex){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
         }
-
-
-
     }
+
+    //remove user from team
+    @PatchMapping("/users/{userId}")
+    public ResponseEntity removeUser(@PathVariable UUID userId, HttpSession session) {
+        try {
+            User user = (User) session.getAttribute("user");
+
+            //user checks
+            if (user == null) {
+                return ResponseEntity.status(400).body("Login first");
+            } else if (!user.getRole().equals("Manager")) {
+                return ResponseEntity.status(400).body("You are not a manager. Only managers can remove team members");
+            }
+
+            userService.removeUser(userId);
+            String s = String.format("User with ID %s has been removed from your team", userId);
+            return ResponseEntity.ok(s);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+
+
+
 
 
 }

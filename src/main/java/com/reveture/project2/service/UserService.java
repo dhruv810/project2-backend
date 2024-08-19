@@ -109,4 +109,15 @@ public class UserService {
         user.setTeam(newTeam);
         return userRepository.saveAndFlush(user);
     }
+
+    public User removeUser(UUID uuid) throws CustomException {
+        //user check happen in the method
+        User user = getUserByUUID(uuid);
+
+        //set team to null and salary to 0
+        user.setTeam(null);
+        user.setSalary(0.0);
+        return userRepository.saveAndFlush(user);
+    }
+
 }
