@@ -4,8 +4,10 @@ import com.reveture.project2.DTO.TeamProposalDTO;
 import com.reveture.project2.DTO.TeamProposalDTO_PLAYER;
 import com.reveture.project2.DTO.UserDTO;
 import com.reveture.project2.entities.Team;
+import com.reveture.project2.entities.TeamProposal;
 import com.reveture.project2.entities.User;
 import com.reveture.project2.exception.CustomException;
+import com.reveture.project2.repository.TeamProposalRepository;
 import com.reveture.project2.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,8 +27,10 @@ import java.util.UUID;
 @AllArgsConstructor
 public class UserService {
 
-    @Autowired
+    // no need for autowired constructor here, it is redundant since we have allArgs lombok annotation
     private final UserRepository userRepository;
+
+    private final TeamProposalRepository teamProposalRepository;
 
 
     //TODO: this works fine when a Team is not passed as param, perhaps we should check if
@@ -84,6 +88,7 @@ public class UserService {
 
     }
     public List<TeamProposal> getTeamProposals(Team t) throws CustomException{
+
         List<TeamProposal> teamProposals = t.getTeamSponsors();
         if (teamProposals == null){
             throw new CustomException("There are no team proposals associated with this team");

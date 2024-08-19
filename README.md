@@ -238,7 +238,11 @@ Accepting Sponsor proposal will add sponsor to team's list of sponsors.
 
 ### Request:
 
-```url = PATCH : "/proposal/sponsor/" + "ACCEPT" 0R "REJECT"```
+```    
+@PatchMapping("/proposal/sponsor/{isAccepted}") 
+public ResponseEntity<?> acceptOrRejectSponsorProposal
+(@PathVariable String isAccepted, @RequestParam UUID proposal_ID, HttpSession session
+```
 
 ### Response
 

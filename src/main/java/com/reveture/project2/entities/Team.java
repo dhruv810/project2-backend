@@ -7,6 +7,7 @@ import lombok.*;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 /*
@@ -34,7 +35,6 @@ but not the amount that sponsors give to the team.
 @Table(name = "team")
 @Setter
 @Getter
-@EqualsAndHashCode
 public class Team {
 
     @Id
@@ -57,4 +57,20 @@ public class Team {
     @Column(name = "balance", nullable = false)
     private Double balance;
 
+    public void addTeamSponsor(TeamProposal t){
+        this.TeamSponsors.add(t);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Team team = (Team) o;
+        return Objects.equals(teamName, team.teamName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(teamName);
+    }
 }
