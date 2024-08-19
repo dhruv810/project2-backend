@@ -1,5 +1,6 @@
 package com.reveture.project2.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.reveture.project2.service.TeamService;
 import jakarta.persistence.*;
 import lombok.*;
@@ -44,12 +45,15 @@ public class Team {
     @Column(name = "team_name", nullable = false, unique = true)
     private String teamName;
 
+    @JsonIgnore
     @ManyToMany(mappedBy = "receiverTeam")
-    private List<TeamProposal> playerSponsors;
+    private List<TeamProposal> TeamSponsors;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "team", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<User> teamMembers;
 
+    @JsonIgnore
     @Column(name = "balance", nullable = false)
     private Double balance;
 

@@ -1,5 +1,6 @@
 package com.reveture.project2.entities;
 
+import com.reveture.project2.DTO.TeamProposalDTO;
 import jakarta.persistence.Entity;
 import lombok.*;
 import org.springframework.stereotype.Component;
@@ -30,14 +31,11 @@ We are using sender and receiver id and not object because object type can be di
 public class TeamProposal {
 
     @Id
-    @Column(name = "team_proposal_id", nullable = false, updatable = false)
+    @Column(name = "team_proposal_id", nullable = false)
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID proposalId;
 
-//    @Column(name="type", nullable = false)
-//    private String type;
-
-    @Column(name="status", nullable = false)
+    @Column(name = "status", nullable = false)
     private String status;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -45,14 +43,11 @@ public class TeamProposal {
     private Sponsor senderSponsor;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name="team", nullable = true)
+    @JoinColumn(name = "team", nullable = true)
     private Team receiverTeam;
 
-//    @ManyToOne(fetch = FetchType.EAGER)
-//    @JoinColumn(name="player", nullable = true)
-//    private User receiverPlayer;
 
-    @Column(name="amount", nullable = false)
+    @Column(name = "amount", nullable = false)
     private Double amount;
 
 }
