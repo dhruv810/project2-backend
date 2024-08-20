@@ -92,8 +92,8 @@ public class UserService {
         }
     }
 
-    public List<User> getAllUsers() {
-        return this.userRepository.findAll();
+    public List<User> getAllUsersByTeam(Team team) {
+        return this.userRepository.findByTeam(team);
     }
 
     public User getUserByUsernameAndPassword(String username, String password) throws CustomException {
@@ -110,9 +110,13 @@ public class UserService {
         return userRepository.saveAndFlush(user);
     }
 
-    public User removeUser(UUID uuid) throws CustomException {
+    public User removeUser(Team manager_team, UUID uuid) throws CustomException {
         //user check happen in the method
         User user = getUserByUUID(uuid);
+
+        if (!manager_team.getTeamId().equals(user.getTeam().getTeamId())) {
+            throw new CustomException("You are not part of same team, you cannot kick this player out");
+        }
 
         //set team to null and salary to 0
         user.setTeam(null);
@@ -120,4 +124,7 @@ public class UserService {
         return userRepository.saveAndFlush(user);
     }
 
+    public void updatePlayerTeamAndSalary(User player) {
+        this.userRepository.save(player);
+    }
 }

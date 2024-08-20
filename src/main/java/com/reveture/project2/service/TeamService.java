@@ -2,8 +2,10 @@ package com.reveture.project2.service;
 
 import com.reveture.project2.entities.Sponsor;
 import com.reveture.project2.entities.Team;
+import com.reveture.project2.entities.User;
 import com.reveture.project2.exception.CustomException;
 import com.reveture.project2.repository.TeamRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -13,14 +15,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@AllArgsConstructor
 public class TeamService {
 
     @Autowired
     final private TeamRepository teamRepository;
-
-    public TeamService(TeamRepository teamRepository) {
-        this.teamRepository = teamRepository;
-    }
+    @Autowired
+    final private UserService userService;
 
     // team creation only done by manager's who are not part of a team
     // returns list of uuid, teamname, list of players, and list of managers
@@ -81,8 +82,13 @@ public class TeamService {
     }
 
 
-
-
-
-
+    public void deleteTeam(Team team) {
+        List<User> teamPlayers = this.userService.getAllUsersByTeam(team);
+        teamPlayers.forEach(player -> {
+            player.setTeam(null);
+            player.setSalary(0.0);
+            this.userService.updatePlayerTeamAndSalary(player);
+        });
+        this.teamRepository.deleteById(team.getTeamId());
+    }
 }

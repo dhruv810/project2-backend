@@ -3,9 +3,11 @@ package com.reveture.project2.controller;
 import com.reveture.project2.DTO.UserDTO;
 import com.reveture.project2.entities.User;
 import com.reveture.project2.exception.CustomException;
+import com.reveture.project2.service.TeamService;
 import com.reveture.project2.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
@@ -19,7 +21,11 @@ import java.util.UUID;
 @RequestMapping("/user")
 @AllArgsConstructor
 public class UserController {
+
+    @Autowired
     private final UserService userService;
+    @Autowired
+    private final TeamService teamService;
 
     // view all users on team
     @GetMapping("/user")
@@ -34,7 +40,7 @@ public class UserController {
                 return ResponseEntity.status(400).body("You are not a manager. Only managers can view all team members");
             }
 
-            List<User> users = this.userService.getAllUsers();
+            List<User> users = this.userService.getAllUsersByTeam(user.getTeam());
             List<UserDTO> res = new ArrayList<>();
             users.forEach(u -> {
                 res.add(new UserDTO(u));
@@ -95,7 +101,12 @@ public class UserController {
                 return ResponseEntity.status(400).body("You are not a manager. Only managers can remove team members");
             }
 
-            userService.removeUser(userId);
+            userService.removeUser(user.getTeam(), userId);
+            List<User> usersInTeam = userService.getAllUsersByTeam(user.getTeam());
+            List<User> managers = usersInTeam.stream().filter(user1 -> user1.getRole().equals("Manager")).toList();
+            if (managers.isEmpty()) {
+                this.teamService.deleteTeam(user.getTeam());
+            }
             String s = String.format("User with ID %s has been removed from your team", userId);
             return ResponseEntity.ok(s);
 
