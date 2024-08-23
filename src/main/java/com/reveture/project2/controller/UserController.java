@@ -179,6 +179,7 @@ public class UserController {
             }
 
             System.out.println("new status: " + newStatus);
+            this.teamService.changeTeamBalance(proposal.getReceiverTeam().getTeamId(), proposal.getAmount());
             this.teamProposalService.changeProposalStatus(proposal, newStatus);
             logger.info("{} team just {} {}'s proposal", user.getTeam().getTeamName(), newStatus, proposal.getSenderSponsor().getName());
             return ResponseEntity.ok(new TeamProposalDTO(proposal));

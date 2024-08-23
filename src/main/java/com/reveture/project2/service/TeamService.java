@@ -94,4 +94,10 @@ public class TeamService {
         });
         this.teamRepository.deleteById(team.getTeamId());
     }
+
+    public Team changeTeamBalance(UUID teamId, Double amount) throws CustomException {
+        Team t = this.findTeamByIdIfExists(teamId);
+        t.setBalance(t.getBalance() + amount);
+        return this.teamRepository.save(t);
+    }
 }
