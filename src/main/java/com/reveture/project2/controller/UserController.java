@@ -48,8 +48,7 @@ public class UserController {
 
             User u = userService.getUserByUUID(user.getUserId());
             Team t = userService.getTeamFromUser(u);
-            List<TeamProposal> proposalList = userService.getTeamProposals(t);
-            proposalList = proposalList.stream().filter(teamProposal -> teamProposal.getStatus().equals(status)).toList();
+            List<TeamProposal> proposalList = userService.getTeamProposals(t, status);
             boolean userIsPlayer = userService.userTypeIsPlayer(u);
 
             return ResponseEntity.ok(
@@ -156,8 +155,8 @@ public class UserController {
         }
     }
 
-    @PatchMapping("/proposal/sponsor/{isAccepted}")
-    public ResponseEntity<?> acceptOrRejectSponsorProposal(@PathVariable String isAccepted, @RequestParam UUID proposal_ID, HttpSession session){
+    @PatchMapping("/proposal/sponsor/{newStatus}")
+    public ResponseEntity<?> acceptOrRejectSponsorProposal(@PathVariable String newStatus, @RequestParam UUID proposal_ID, HttpSession session){
         try {
             User user = (User) session.getAttribute("user");
             if (user == null) {
@@ -172,9 +171,13 @@ public class UserController {
                 return ResponseEntity.status(400).body("proposal must be sent to a team in order to be accepted");
             }if ( ! proposal.getReceiverTeam().equals(user.getTeam())){
                 return ResponseEntity.status(400).body("Manager must be a member of the same team in order to approve said team's sponsorship offers");
+            } if (! proposal.getStatus().equalsIgnoreCase("Pending")) {
+                return ResponseEntity.status(400).body("Accepted/Rejected proposals cannot be edited");
             }
-            this.teamProposalService.changeProposalStatus(proposal,isAccepted);
-            return ResponseEntity.ok(proposal);
+
+            System.out.println("new status: " + newStatus);
+            this.teamProposalService.changeProposalStatus(proposal, newStatus);
+            return ResponseEntity.ok(new TeamProposalDTO(proposal));
 
         } catch (CustomException e){
             return ResponseEntity.status(400).body(e.getMessage());

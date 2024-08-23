@@ -1,6 +1,7 @@
 package com.reveture.project2.service;
 
 import com.reveture.project2.entities.Sponsor;
+import com.reveture.project2.entities.Team;
 import com.reveture.project2.entities.TeamProposal;
 import com.reveture.project2.exception.CustomException;
 import com.reveture.project2.repository.TeamProposalRepository;
@@ -63,11 +64,17 @@ public class TeamProposalService {
         return t_P.get();
     }
     public void changeProposalStatus(TeamProposal prop, String status) throws CustomException {
-        if (status.equals("accepted")) {
+        if (status.equalsIgnoreCase("accepted")) {
+            prop.setStatus("Accepted");
             this.teamProposalRepository.save(prop);
+        } else {
+            this.sponsorService.updateBudget(prop.getSenderSponsor().getSponsorId(), prop.getSenderSponsor().getBudget() + prop.getAmount());
+            prop.setStatus("Rejected");
+            this.teamProposalRepository.deleteById(prop.getProposalId());
         }
-        this.sponsorService.updateBudget(prop.getSenderSponsor().getSponsorId(), prop.getSenderSponsor().getBudget() + prop.getAmount());
-        this.teamProposalRepository.deleteById(prop.getProposalId());
     }
 
+    public List<TeamProposal> getProposalByStatusByTeam(Team t, String status) {
+        return this.teamProposalRepository.findAllByReceiverTeamAndStatus(t, status);
+    }
 }

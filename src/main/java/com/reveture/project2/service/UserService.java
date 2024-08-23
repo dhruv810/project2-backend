@@ -7,7 +7,6 @@ import com.reveture.project2.entities.Team;
 import com.reveture.project2.entities.TeamProposal;
 import com.reveture.project2.entities.User;
 import com.reveture.project2.exception.CustomException;
-import com.reveture.project2.repository.TeamProposalRepository;
 import com.reveture.project2.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +29,8 @@ public class UserService {
     // no need for autowired constructor here, it is redundant since we have allArgs lombok annotation
     private final UserRepository userRepository;
 
-    private final TeamProposalRepository teamProposalRepository;
+    private final TeamProposalService teamProposalService;
+
 
 
     //TODO: this works fine when a Team is not passed as param, perhaps we should check if
@@ -87,13 +87,9 @@ public class UserService {
         return false;
 
     }
-    public List<TeamProposal> getTeamProposals(Team t) throws CustomException{
-
-        List<TeamProposal> teamProposals = t.getTeamSponsors();
-        if (teamProposals == null){
-            throw new CustomException("There are no team proposals associated with this team");
-        }
-        return teamProposals;
+    public List<TeamProposal> getTeamProposals(Team t, String status) throws CustomException{
+    // TODO: IMPLEMENT
+        return this.teamProposalService.getProposalByStatusByTeam(t, status);
 
     }
     public Team getTeamFromUser(User u) throws CustomException{
