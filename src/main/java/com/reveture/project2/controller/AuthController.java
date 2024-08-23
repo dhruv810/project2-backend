@@ -6,7 +6,6 @@ import com.reveture.project2.DTO.UserDTO;
 import com.reveture.project2.entities.Sponsor;
 import com.reveture.project2.entities.User;
 import com.reveture.project2.exception.CustomException;
-import com.reveture.project2.repository.SponsorRepository;
 import com.reveture.project2.service.AuthService;
 import com.reveture.project2.service.TeamService;
 import jakarta.servlet.http.HttpSession;

@@ -1,9 +1,7 @@
 package com.reveture.project2.entities;
 
-import com.reveture.project2.DTO.TeamProposalDTO;
 import jakarta.persistence.Entity;
 import lombok.*;
-import org.springframework.stereotype.Component;
 import jakarta.persistence.*;
 
 

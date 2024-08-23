@@ -1,14 +1,6 @@
 package com.reveture.project2.DTO;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.reveture.project2.entities.Sponsor;
-import com.reveture.project2.entities.TeamProposal;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.OneToMany;
-
-import java.util.List;
 import java.util.UUID;
 
 public class SponsorDTO {

@@ -1,7 +1,6 @@
 package com.reveture.project2.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.reveture.project2.service.TeamService;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.stereotype.Component;
