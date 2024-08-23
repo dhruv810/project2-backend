@@ -18,12 +18,12 @@ import java.util.List;
 
 @RestController
 public class TeamController {
+
     private static final Logger logger = LoggerFactory.getLogger(TeamService.class);
-    @Autowired
     final private TeamService teamService;
-    @Autowired
     final private UserService userService;
 
+    @Autowired
     public TeamController(TeamService teamService, UserService userService) {
         this.teamService = teamService;
         this.userService = userService;

@@ -7,7 +7,10 @@ import com.reveture.project2.entities.TeamProposal;
 import com.reveture.project2.exception.CustomException;
 import com.reveture.project2.service.SponsorService;
 import com.reveture.project2.service.TeamProposalService;
+import com.reveture.project2.service.TeamService;
 import jakarta.servlet.http.HttpSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,21 +24,21 @@ import java.util.UUID;
 @RequestMapping("/sponsor")
 public class SponsorController {
 
-    @Autowired
     final private SponsorService sponsorService;
-
-    @Autowired
     final private TeamProposalService teamProposalService;
 
+    private static final Logger logger = LoggerFactory.getLogger(TeamService.class);
+
+    @Autowired
     public SponsorController(SponsorService sponsorService, TeamProposalService teamProposalService) {
         this.sponsorService = sponsorService;
         this.teamProposalService = teamProposalService;
     }
 
-    // TODO: delete this in deployment
     @GetMapping("/all")
     public ResponseEntity<?> test() {
         List<Sponsor> sponsors = this.sponsorService.getAllSponsors();
+        logger.info("someone just accessed all sponsor info.");
         return ResponseEntity.ok().body(sponsors);
     }
 
@@ -45,6 +48,7 @@ public class SponsorController {
         try {
             Sponsor newSponsor = this.sponsorService.createSponsor(sponsor);
             SponsorDTO s = new SponsorDTO(newSponsor);
+            logger.info("New sponsor created with name: {}", newSponsor.getName());
             return ResponseEntity.ok().body(s);
         } catch (CustomException e) {
             return ResponseEntity.status(400).body(e.getMessage());
@@ -63,6 +67,7 @@ public class SponsorController {
             }
             Sponsor newSponsor = this.sponsorService.updateBudget(sponsor.getSponsorId(), newBudget);
 //            SponsorDTO s = new SponsorDTO(newSponsor);
+            logger.info("Sponsor: {} just changed budget to {}", sponsor.getName(), newSponsor.getBudget());
             return ResponseEntity.ok().body("Successfully updated budget to " + newSponsor.getBudget());
         } catch (CustomException e) {
             return ResponseEntity.status(400).body(e.getMessage());
@@ -85,6 +90,7 @@ public class SponsorController {
             teamProposal.setSenderSponsor(sponsor);
             teamProposal.setStatus("Pending");
             TeamProposal tp = this.teamProposalService.createProposal(teamProposal);
+            logger.info("{} send proposal to {} team", teamProposal.getSenderSponsor().getName(), teamProposal.getReceiverTeam().getTeamName());
             return ResponseEntity.ok().body(new TeamProposalDTO(tp));
         } catch (CustomException e) {
             return ResponseEntity.status(400).body(e.getMessage());
@@ -105,6 +111,7 @@ public class SponsorController {
             sponsoredTeams.forEach(teamProposal -> {
                 res.add(new TeamProposalDTO(teamProposal));
             });
+            logger.info("Accessing all sponsored team for {}", sponsor.getName());
             return ResponseEntity.ok().body(res);
 
         } catch (CustomException e) {
@@ -126,6 +133,7 @@ public class SponsorController {
             proposals.forEach(teamProposal -> {
                 res.add(new TeamProposalDTO(teamProposal));
             });
+            logger.info("Accessing all {} proposal for {}", status, sponsor.getName());
             return ResponseEntity.ok().body(res);
         } catch (CustomException e) {
             return ResponseEntity.status(400).body(e.getMessage());

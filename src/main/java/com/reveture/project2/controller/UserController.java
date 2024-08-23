@@ -11,6 +11,8 @@ import com.reveture.project2.service.TeamService;
 import com.reveture.project2.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,16 +26,19 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/user")
-@AllArgsConstructor
 public class UserController {
 
-    @Autowired
     private final UserService userService;
-    @Autowired
     private final TeamService teamService;
-
-    // view all users on team
     private final TeamProposalService teamProposalService;
+    private static final Logger logger = LoggerFactory.getLogger(TeamService.class);
+
+    @Autowired
+    public UserController(UserService userService, TeamService teamService, TeamProposalService teamProposalService) {
+        this.userService = userService;
+        this.teamService = teamService;
+        this.teamProposalService = teamProposalService;
+    }
 
     @GetMapping("/sponsors/{status}")
     public ResponseEntity<?> seeSponsorships(HttpSession session, @PathVariable String status){
@@ -51,20 +56,17 @@ public class UserController {
             List<TeamProposal> proposalList = userService.getTeamProposals(t, status);
             boolean userIsPlayer = userService.userTypeIsPlayer(u);
 
-            return ResponseEntity.ok(
+            logger.info("Viewing sponsorship for {} team", user.getTeam().getTeamName());
 
+            return ResponseEntity.ok(
                     userIsPlayer?
                      userService.getTeamProposalsForPlayer(proposalList)
                     : userService.getTeamProposalsForManager(proposalList)
-
             );
         } catch (CustomException e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-
         } catch (Exception ex){
-
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-
         }
     }
 
@@ -85,6 +87,7 @@ public class UserController {
             users.forEach(u -> {
                 res.add(new UserDTO(u));
             });
+            logger.info("Viewing all User of {} team", user.getTeam().getTeamName());
             return ResponseEntity.ok().body(res);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -95,6 +98,7 @@ public class UserController {
     public ResponseEntity<?> createUser(@RequestBody User u ){
         try{
             User user = userService.addNewUser(u);
+            logger.info("Create new user with username: {}", u.getUsername());
             return ResponseEntity.ok().body(new UserDTO(user));
         } catch (CustomException e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -120,6 +124,7 @@ public class UserController {
 
             userService.updateRole(player_id, newRole, user.getUserId());
             String s = String.format("User with ID %s role has been updated to role %s", player_id, newRole);
+            logger.info(s);
             return ResponseEntity.ok(s);
         } catch(CustomException e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -148,6 +153,7 @@ public class UserController {
                 this.teamService.deleteTeam(user.getTeam());
             }
             String s = String.format("User with ID %s has been removed from your team", userId);
+            logger.info(s);
             return ResponseEntity.ok(s);
 
         } catch (Exception e) {
@@ -177,6 +183,7 @@ public class UserController {
 
             System.out.println("new status: " + newStatus);
             this.teamProposalService.changeProposalStatus(proposal, newStatus);
+            logger.info("{} team just {} {}'s proposal", user.getTeam().getTeamName(), newStatus, proposal.getSenderSponsor().getName());
             return ResponseEntity.ok(new TeamProposalDTO(proposal));
 
         } catch (CustomException e){
@@ -184,17 +191,5 @@ public class UserController {
         } catch (Exception ex){
             return ResponseEntity.status(400).body(ex.getMessage());
         }
-
-
-
-
-
     }
-
-
-
-
-
-
-
 }

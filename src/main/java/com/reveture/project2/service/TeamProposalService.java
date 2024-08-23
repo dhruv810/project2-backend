@@ -18,10 +18,7 @@ import java.util.UUID;
 
 public class TeamProposalService {
 
-
     final private TeamProposalRepository teamProposalRepository;
-
-
     final private SponsorService sponsorService;
 
     // constructor injection is better

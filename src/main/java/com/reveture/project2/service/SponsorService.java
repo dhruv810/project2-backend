@@ -13,9 +13,9 @@ import java.util.UUID;
 @Service
 public class SponsorService {
 
-    @Autowired
     final private SponsorRepository sponsorRepository;
 
+    @Autowired
     public SponsorService(SponsorRepository sponsorRepository) {
         this.sponsorRepository = sponsorRepository;
     }

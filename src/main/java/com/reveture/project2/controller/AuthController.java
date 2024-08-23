@@ -8,7 +8,10 @@ import com.reveture.project2.entities.User;
 import com.reveture.project2.exception.CustomException;
 import com.reveture.project2.repository.SponsorRepository;
 import com.reveture.project2.service.AuthService;
+import com.reveture.project2.service.TeamService;
 import jakarta.servlet.http.HttpSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,10 +20,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 public class AuthController {
 
-    @Autowired
     final private AuthService authService;
     public static HttpSession ses;
+    private static final Logger logger = LoggerFactory.getLogger(TeamService.class);
 
+
+    @Autowired
     public AuthController(AuthService authService) {
         this.authService = authService;
     }
@@ -33,6 +38,7 @@ public class AuthController {
             if (loggedInUser != null) {
                 httpSession.setAttribute("user", loggedInUser);
                 ses = httpSession;
+                logger.info("User: {} just logged in,", loggedInUser.getUsername());
                 return ResponseEntity.ok().body(new UserDTO(loggedInUser));
             }
             else {
@@ -53,6 +59,7 @@ public class AuthController {
             if (loggedInSponsor != null) {
                 httpSession.setAttribute("sponsor", loggedInSponsor);
                 ses = httpSession;
+                logger.info("Sponsor: {} just logged in,", loggedInSponsor.getUsername());
                 return ResponseEntity.ok().body(new SponsorDTO(loggedInSponsor));
             }
             else {
@@ -68,6 +75,7 @@ public class AuthController {
     @GetMapping("/user/logout")
     public ResponseEntity<?> logout(HttpSession httpSession) {
         httpSession.invalidate();
+        logger.info("Logged out everyone.");
         return ResponseEntity.ok().body("Logged out");
     }
 

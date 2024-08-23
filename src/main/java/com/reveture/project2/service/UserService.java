@@ -23,15 +23,17 @@ import java.util.UUID;
 
 
 @Service
-@AllArgsConstructor
 public class UserService {
 
     // no need for autowired constructor here, it is redundant since we have allArgs lombok annotation
     private final UserRepository userRepository;
-
     private final TeamProposalService teamProposalService;
 
-
+    @Autowired
+    public UserService(UserRepository userRepository, TeamProposalService teamProposalService) {
+        this.userRepository = userRepository;
+        this.teamProposalService = teamProposalService;
+    }
 
     //TODO: this works fine when a Team is not passed as param, perhaps we should check if
     // it still works when a team is passed as param in HTTP request.

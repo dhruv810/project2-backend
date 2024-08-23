@@ -12,11 +12,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthService {
 
-    @Autowired
     final private UserService userService;
-    @Autowired
     final private SponsorService sponsorService;
 
+    @Autowired
     public AuthService(UserService userService, SponsorService sponsorService) {
         this.userService = userService;
         this.sponsorService = sponsorService;

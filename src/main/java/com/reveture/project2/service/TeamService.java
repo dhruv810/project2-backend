@@ -15,13 +15,16 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-@AllArgsConstructor
 public class TeamService {
 
-    @Autowired
     final private TeamRepository teamRepository;
-    @Autowired
     final private UserService userService;
+
+    @Autowired
+    public TeamService(TeamRepository teamRepository, UserService userService) {
+        this.teamRepository = teamRepository;
+        this.userService = userService;
+    }
 
     // team creation only done by manager's who are not part of a team
     // returns list of uuid, teamname, list of players, and list of managers
