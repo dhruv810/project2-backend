@@ -4,21 +4,26 @@ import com.reveture.project2.entities.Sponsor;
 import com.reveture.project2.entities.TeamProposal;
 import com.reveture.project2.exception.CustomException;
 import com.reveture.project2.repository.TeamProposalRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
+
 public class TeamProposalService {
 
-    @Autowired
+
     final private TeamProposalRepository teamProposalRepository;
 
-    @Autowired
+
     final private SponsorService sponsorService;
 
+    // constructor injection is better
+    @Autowired
     public TeamProposalService(TeamProposalRepository repository, SponsorService sponsorService) {
         this.teamProposalRepository = repository;
         this.sponsorService = sponsorService;
@@ -38,6 +43,7 @@ public class TeamProposalService {
 
     public List<TeamProposal> getAllAcceptedProposalsBySponsor(UUID sponsorid) throws CustomException {
         Sponsor s = this.sponsorService.findSponsorIdIfExists(sponsorid);
+
         return this.teamProposalRepository.findAllBySenderSponsorAndStatus(s, "Accepted");
 
     }
@@ -47,4 +53,30 @@ public class TeamProposalService {
         return this.teamProposalRepository.findAllBySenderSponsorAndStatus(s, status);
 
     }
+    public TeamProposal getProposalByID(UUID teamProposalID) throws CustomException{
+        Optional<TeamProposal> t_P = this.teamProposalRepository.findById(teamProposalID);
+        if (t_P.isEmpty()){
+            String s = String.format("Proposal ID with UUID %s does not exist",teamProposalID.toString());
+            throw  new CustomException(s);
+        }
+        return t_P.get();
+    }
+    public TeamProposal changeProposalStatus(TeamProposal prop, String status) throws CustomException{
+        try {
+            prop.setStatus(status);
+        } catch (Exception e) {
+            throw new CustomException("Invalid team proposal passed to changeProposalStatus, could not change status of it.");
+        }
+        TeamProposal t = this.teamProposalRepository.save(prop);
+        if (t != null && t.getProposalId() != null){
+            String s = String.format("proposal with id %s's status could not be changed",prop.getProposalId().toString());
+            throw new CustomException(s);
+        }
+        // if status is accepted, we must add it to the list of Team's sponsors
+        if (status.equals("accepted")){
+            t.getReceiverTeam().addTeamSponsor(t);
+        }
+        return t;
+    }
+
 }

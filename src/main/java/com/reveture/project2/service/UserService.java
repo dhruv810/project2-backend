@@ -1,9 +1,13 @@
 package com.reveture.project2.service;
 
+import com.reveture.project2.DTO.TeamProposalDTO;
+import com.reveture.project2.DTO.TeamProposalDTO_PLAYER;
 import com.reveture.project2.DTO.UserDTO;
 import com.reveture.project2.entities.Team;
+import com.reveture.project2.entities.TeamProposal;
 import com.reveture.project2.entities.User;
 import com.reveture.project2.exception.CustomException;
+import com.reveture.project2.repository.TeamProposalRepository;
 import com.reveture.project2.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +15,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import java.util.Optional;
@@ -21,8 +27,10 @@ import java.util.UUID;
 @AllArgsConstructor
 public class UserService {
 
-    @Autowired
+    // no need for autowired constructor here, it is redundant since we have allArgs lombok annotation
     private final UserRepository userRepository;
+
+    private final TeamProposalRepository teamProposalRepository;
 
 
     //TODO: this works fine when a Team is not passed as param, perhaps we should check if
@@ -43,6 +51,60 @@ public class UserService {
             catch (Exception e){
                 throw new CustomException("Failed to insert user: " + e.getMessage());
             }
+    }
+
+    public List<TeamProposalDTO> getTeamProposalsForManager(List<TeamProposal> teamProposals) throws CustomException{
+        List<TeamProposalDTO> returnedList = new ArrayList<>();
+        try {
+            for (TeamProposal proposal : teamProposals) {
+                returnedList.add(new TeamProposalDTO(proposal));
+            }
+            return returnedList;
+        } catch (Exception e){
+            throw new CustomException("Problem when creating teamProposalDTO from TeamProposal objects");
+        }
+    }
+
+    public List<TeamProposalDTO_PLAYER> getTeamProposalsForPlayer(List<TeamProposal> teamProposals) throws CustomException{
+        List<TeamProposalDTO_PLAYER> returnedList = new ArrayList<>();
+        try {
+            for (TeamProposal proposal : teamProposals) {
+                returnedList.add(new TeamProposalDTO_PLAYER(proposal));
+            }
+            return returnedList;
+        } catch (Exception e){
+            throw new CustomException("Problem when creating teamProposalDTO_PLAYER from TeamProposal objects");
+        }
+    }
+    public boolean userTypeIsPlayer(User u) throws CustomException{
+        if (u.getRole() == null){
+            String s = String.format("The role of user %s is null",u.getUserId().toString());
+            throw new CustomException(s);
+        }
+        if (u.getRole().equals("Player")){
+            return true;
+        }
+        return false;
+
+    }
+    public List<TeamProposal> getTeamProposals(Team t) throws CustomException{
+
+        List<TeamProposal> teamProposals = t.getTeamSponsors();
+        if (teamProposals == null){
+            throw new CustomException("There are no team proposals associated with this team");
+        }
+        return teamProposals;
+
+    }
+    public Team getTeamFromUser(User u) throws CustomException{
+
+        if (u.getTeam() == null){
+            throw new CustomException("User does not have a team associated with them.");
+        }
+
+        return u.getTeam();
+
+
     }
     public User getUserByUUID(UUID id) throws CustomException{
         String stringID = id.toString();

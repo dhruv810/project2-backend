@@ -158,10 +158,10 @@ This will allow Manager to promote a Player to Manger or demote Manager to Playe
 
 ### Request:
 
-```url = PATCH : "/role/" + {new role}```
+```url = PATCH : "user/role/" + {new role}```
 
 ``` 
-Importante notes: 
+Important notes: 
 1. We will extrat the userID from the session object to determine which user to update :-)
 2. "Player" and "Manager" are the only valid role types all others will be invalid 
 ```
@@ -238,7 +238,11 @@ Accepting Sponsor proposal will add sponsor to team's list of sponsors.
 
 ### Request:
 
-```url = PATCH : "/proposal/sponsor/" + "ACCEPT" 0R "REJECT"```
+```    
+@PatchMapping("/proposal/sponsor/{isAccepted}") 
+public ResponseEntity<?> acceptOrRejectSponsorProposal
+(@PathVariable String isAccepted, @RequestParam UUID proposal_ID, HttpSession session
+```
 
 ### Response
 

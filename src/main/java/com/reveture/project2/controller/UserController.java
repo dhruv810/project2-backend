@@ -1,9 +1,11 @@
 package com.reveture.project2.controller;
 
+import com.reveture.project2.DTO.TeamProposalDTO;
 import com.reveture.project2.DTO.UserDTO;
+import com.reveture.project2.entities.Team;
+import com.reveture.project2.entities.TeamProposal;
 import com.reveture.project2.entities.User;
 import com.reveture.project2.exception.CustomException;
-import com.reveture.project2.service.TeamService;
 import com.reveture.project2.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
@@ -15,6 +17,7 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -28,6 +31,38 @@ public class UserController {
     private final TeamService teamService;
 
     // view all users on team
+    private final TeamProposalService teamProposalService;
+
+
+    //TODO:We need to actually test this, as I haven't tested since there is no way to create a proposal object yet
+    // (will be completed in Sponsor Stories)
+    @GetMapping("/sponsors")
+    public ResponseEntity<?> seeSponsorships(){
+        String StringUUID = "b065e857-9770-4c9e-bbb9-90a4d3dbd048";
+        String non_existient_UUID = "b065e857-9770-4c9e-bbb9-90a4d3dbd047"; // for testing reasons, i made a non-existent user
+        UUID dummmyID = UUID.fromString(StringUUID);
+        try {
+            User u = userService.getUserByUUID(dummmyID);
+            Team t = userService.getTeamFromUser(u);
+            List<TeamProposal> proposalList = userService.getTeamProposals(t);
+            boolean userIsPlayer = userService.userTypeIsPlayer(u);
+
+            return ResponseEntity.ok(
+
+                    userIsPlayer?
+                     userService.getTeamProposalsForPlayer(proposalList)
+                    : userService.getTeamProposalsForManager(proposalList)
+
+            );
+        } catch (CustomException e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+
+        } catch (Exception ex){
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+
+        }
+    }
     @GetMapping("/user")
     public ResponseEntity<?> viewUsers(HttpSession session) {
         try {
@@ -114,6 +149,59 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+
+
+
+
+
+    /*
+    Accept/Reject Sponsor proposals
+Accepting Sponsor proposal will add sponsor to team's list of sponsors.
+
+Request:
+url = PATCH : "/proposal/sponsor/" + "ACCEPT" 0R "REJECT"
+
+Response
+Body = [{
+    id: UUID
+    username: String
+    category: String
+    name: String
+}, ...]
+     */
+
+    @PatchMapping("/proposal/sponsor/{isAccepted}")
+    public ResponseEntity<?> acceptOrRejectSponsorProposal(@PathVariable String isAccepted, @RequestParam UUID proposal_ID, HttpSession session){
+        try {
+            User user = (User) session.getAttribute("user");
+            if (user == null) {
+                return ResponseEntity.status(400).body("Login first");
+            }if (user.getRole().equals("Player")) {
+                return ResponseEntity.status(400).body("You are not manager. Only manager can accept or reject sponsorship proposals");
+            }if (user.getTeam() == null){
+                return ResponseEntity.status(400).body("Manager must be member of a team in order to accept or deny proposals");
+            }
+            TeamProposal proposal = this.teamProposalService.getProposalByID(proposal_ID);
+            if ( proposal.getReceiverTeam() == null){
+                return ResponseEntity.status(400).body("proposal must be sent to a team in order to be accepted");
+            }if ( ! proposal.getReceiverTeam().equals(user.getTeam())){
+                return ResponseEntity.status(400).body("Manager must be a member of the same team in order to approve said team's sponsorship offers");
+            }
+            this.teamProposalService.changeProposalStatus(proposal,isAccepted);
+            return ResponseEntity.ok(proposal);
+
+        } catch (CustomException e){
+            return ResponseEntity.status(400).body(e.getMessage());
+        } catch (Exception ex){
+            return ResponseEntity.status(400).body(ex.getMessage());
+        }
+
+
+
+
+
+    }
+
 
 
 
