@@ -106,6 +106,7 @@ public class SponsorController {
                 res.add(new TeamProposalDTO(teamProposal));
             });
             return ResponseEntity.ok().body(res);
+
         } catch (CustomException e) {
             return ResponseEntity.status(400).body(e.getMessage());
         } catch (Exception e) {

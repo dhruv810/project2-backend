@@ -6,6 +6,8 @@ import com.reveture.project2.entities.Team;
 import com.reveture.project2.entities.TeamProposal;
 import com.reveture.project2.entities.User;
 import com.reveture.project2.exception.CustomException;
+import com.reveture.project2.service.TeamProposalService;
+import com.reveture.project2.service.TeamService;
 import com.reveture.project2.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
@@ -33,18 +35,21 @@ public class UserController {
     // view all users on team
     private final TeamProposalService teamProposalService;
 
-
-    //TODO:We need to actually test this, as I haven't tested since there is no way to create a proposal object yet
-    // (will be completed in Sponsor Stories)
-    @GetMapping("/sponsors")
-    public ResponseEntity<?> seeSponsorships(){
-        String StringUUID = "b065e857-9770-4c9e-bbb9-90a4d3dbd048";
-        String non_existient_UUID = "b065e857-9770-4c9e-bbb9-90a4d3dbd047"; // for testing reasons, i made a non-existent user
-        UUID dummmyID = UUID.fromString(StringUUID);
+    @GetMapping("/sponsors/{status}")
+    public ResponseEntity<?> seeSponsorships(HttpSession session, @PathVariable String status){
         try {
-            User u = userService.getUserByUUID(dummmyID);
+            User user = (User) session.getAttribute("user");
+            if (user == null) {
+                return ResponseEntity.status(400).body("Login first");
+            }
+            if (user.getRole().equals("Player") && (! status.equals("Accepted"))) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You don't have authorization to access this information");
+            }
+
+            User u = userService.getUserByUUID(user.getUserId());
             Team t = userService.getTeamFromUser(u);
             List<TeamProposal> proposalList = userService.getTeamProposals(t);
+            proposalList = proposalList.stream().filter(teamProposal -> teamProposal.getStatus().equals(status)).toList();
             boolean userIsPlayer = userService.userTypeIsPlayer(u);
 
             return ResponseEntity.ok(
@@ -63,6 +68,7 @@ public class UserController {
 
         }
     }
+
     @GetMapping("/user")
     public ResponseEntity<?> viewUsers(HttpSession session) {
         try {
@@ -125,7 +131,7 @@ public class UserController {
 
     //remove user from team
     @PatchMapping("/users/{userId}")
-    public ResponseEntity removeUser(@PathVariable UUID userId, HttpSession session) {
+    public ResponseEntity<?> removeUser(@PathVariable UUID userId, HttpSession session) {
         try {
             User user = (User) session.getAttribute("user");
 
@@ -149,26 +155,6 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
-
-
-
-
-
-    /*
-    Accept/Reject Sponsor proposals
-Accepting Sponsor proposal will add sponsor to team's list of sponsors.
-
-Request:
-url = PATCH : "/proposal/sponsor/" + "ACCEPT" 0R "REJECT"
-
-Response
-Body = [{
-    id: UUID
-    username: String
-    category: String
-    name: String
-}, ...]
-     */
 
     @PatchMapping("/proposal/sponsor/{isAccepted}")
     public ResponseEntity<?> acceptOrRejectSponsorProposal(@PathVariable String isAccepted, @RequestParam UUID proposal_ID, HttpSession session){

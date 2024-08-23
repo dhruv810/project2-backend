@@ -6,6 +6,7 @@ import com.reveture.project2.exception.CustomException;
 import com.reveture.project2.repository.TeamProposalRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -61,22 +62,12 @@ public class TeamProposalService {
         }
         return t_P.get();
     }
-    public TeamProposal changeProposalStatus(TeamProposal prop, String status) throws CustomException{
-        try {
-            prop.setStatus(status);
-        } catch (Exception e) {
-            throw new CustomException("Invalid team proposal passed to changeProposalStatus, could not change status of it.");
+    public void changeProposalStatus(TeamProposal prop, String status) throws CustomException {
+        if (status.equals("accepted")) {
+            this.teamProposalRepository.save(prop);
         }
-        TeamProposal t = this.teamProposalRepository.save(prop);
-        if (t != null && t.getProposalId() != null){
-            String s = String.format("proposal with id %s's status could not be changed",prop.getProposalId().toString());
-            throw new CustomException(s);
-        }
-        // if status is accepted, we must add it to the list of Team's sponsors
-        if (status.equals("accepted")){
-            t.getReceiverTeam().addTeamSponsor(t);
-        }
-        return t;
+        this.sponsorService.updateBudget(prop.getSenderSponsor().getSponsorId(), prop.getSenderSponsor().getBudget() + prop.getAmount());
+        this.teamProposalRepository.deleteById(prop.getProposalId());
     }
 
 }
