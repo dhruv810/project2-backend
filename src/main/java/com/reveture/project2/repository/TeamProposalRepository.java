@@ -15,4 +15,6 @@ public interface TeamProposalRepository extends JpaRepository<TeamProposal, UUID
     List<TeamProposal> findAllBySenderSponsorAndStatus(Sponsor s, String accepted);
 
     List<TeamProposal> findAllByReceiverTeamAndStatus(Team t, String status);
+
+    List<TeamProposal> findAllBySenderSponsor(Sponsor s);
 }

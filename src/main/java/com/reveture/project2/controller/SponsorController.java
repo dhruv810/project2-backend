@@ -126,7 +126,14 @@ public class SponsorController {
             if (sponsor == null) {
                 return ResponseEntity.status(400).body("Login first");
             }
-            List<TeamProposal> proposals = this.teamProposalService.getAllProposalsBySponsor(sponsor.getSponsorId(), status);
+            List<TeamProposal> proposals = new ArrayList<>();
+            if (status.equalsIgnoreCase("ALL")) {
+                proposals = this.teamProposalService.getAllProposalsBySponsor(sponsor.getSponsorId());
+            }
+            else {
+                proposals = this.teamProposalService.getAllProposalsBySponsorByStatus(sponsor.getSponsorId(), status);
+            }
+
             List<TeamProposalDTO> res = new ArrayList<>();
             proposals.forEach(teamProposal -> {
                 res.add(new TeamProposalDTO(teamProposal));

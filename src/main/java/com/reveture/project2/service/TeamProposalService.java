@@ -47,7 +47,7 @@ public class TeamProposalService {
 
     }
 
-    public List<TeamProposal> getAllProposalsBySponsor(UUID sponsorid, String status) throws CustomException {
+    public List<TeamProposal> getAllProposalsBySponsorByStatus(UUID sponsorid, String status) throws CustomException {
         Sponsor s = this.sponsorService.findSponsorIdIfExists(sponsorid);
         return this.teamProposalRepository.findAllBySenderSponsorAndStatus(s, status);
 
@@ -76,5 +76,10 @@ public class TeamProposalService {
 
     public List<TeamProposal> getAllProposals() {
         return this.teamProposalRepository.findAll();
+    }
+
+    public List<TeamProposal> getAllProposalsBySponsor(UUID sponsorId) throws CustomException {
+        Sponsor s = this.sponsorService.findSponsorIdIfExists(sponsorId);
+        return this.teamProposalRepository.findAllBySenderSponsor(s);
     }
 }
