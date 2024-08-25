@@ -85,19 +85,27 @@ public class TeamService {
     }
 
 
-    public void deleteTeam(Team team) {
-        List<User> teamPlayers = this.userService.getAllUsersByTeam(team);
-        teamPlayers.forEach(player -> {
-            player.setTeam(null);
-            player.setSalary(0.0);
-            this.userService.updatePlayerTeamAndSalary(player);
-        });
-        this.teamRepository.deleteById(team.getTeamId());
-    }
+//    public void deleteTeam(Team team) {
+//        List<User> teamPlayers = this.userService.getAllUsersByTeam(team);
+//        teamPlayers.forEach(player -> {
+//            try {
+//                this.userService.updatePlayerTeamAndSalary(player, null, 0.0);
+//            } catch (CustomException e) {
+//                // DO NOTHING
+//            }
+//        });
+//        this.teamRepository.deleteById(team.getTeamId());
+//    }
 
     public Team changeTeamBalance(UUID teamId, Double amount) throws CustomException {
         Team t = this.findTeamByIdIfExists(teamId);
-        t.setBalance(t.getBalance() + amount);
+        t.setBalance(amount);
         return this.teamRepository.save(t);
+    }
+
+    public void updateBalance(Team tt, double newBalance) throws CustomException {
+        Team team = this.findTeamByIdIfExists(tt.getTeamId());
+        team.setBalance(newBalance);
+        this.teamRepository.save(team);
     }
 }

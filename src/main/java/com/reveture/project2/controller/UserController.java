@@ -1,11 +1,15 @@
 package com.reveture.project2.controller;
 
+import ch.qos.logback.core.encoder.EchoEncoder;
+import com.reveture.project2.DTO.TeamInviteDTO;
 import com.reveture.project2.DTO.TeamProposalDTO;
 import com.reveture.project2.DTO.UserDTO;
 import com.reveture.project2.entities.Team;
+import com.reveture.project2.entities.TeamInvite;
 import com.reveture.project2.entities.TeamProposal;
 import com.reveture.project2.entities.User;
 import com.reveture.project2.exception.CustomException;
+import com.reveture.project2.service.TeamInviteService;
 import com.reveture.project2.service.TeamProposalService;
 import com.reveture.project2.service.TeamService;
 import com.reveture.project2.service.UserService;
@@ -28,13 +32,15 @@ public class UserController {
     private final UserService userService;
     private final TeamService teamService;
     private final TeamProposalService teamProposalService;
+    final private TeamInviteService teamInviteService;
     private static final Logger logger = LoggerFactory.getLogger(TeamService.class);
 
     @Autowired
-    public UserController(UserService userService, TeamService teamService, TeamProposalService teamProposalService) {
+    public UserController(UserService userService, TeamService teamService, TeamProposalService teamProposalService, TeamInviteService teamInviteService) {
         this.userService = userService;
         this.teamService = teamService;
         this.teamProposalService = teamProposalService;
+        this.teamInviteService = teamInviteService;
     }
 
     @GetMapping("/sponsors/{status}")
@@ -146,9 +152,9 @@ public class UserController {
             userService.removeUser(user.getTeam(), userId);
             List<User> usersInTeam = userService.getAllUsersByTeam(user.getTeam());
             List<User> managers = usersInTeam.stream().filter(user1 -> user1.getRole().equals("Manager")).toList();
-            if (managers.isEmpty()) {
-                this.teamService.deleteTeam(user.getTeam());
-            }
+//            if (managers.isEmpty()) {
+//                this.teamService.deleteTeam(user.getTeam());
+//            }
             String s = String.format("User with ID %s has been removed from your team", userId);
             logger.info(s);
             return ResponseEntity.ok(s);
@@ -178,8 +184,7 @@ public class UserController {
                 return ResponseEntity.status(400).body("Accepted/Rejected proposals cannot be edited");
             }
 
-            System.out.println("new status: " + newStatus);
-            this.teamService.changeTeamBalance(proposal.getReceiverTeam().getTeamId(), proposal.getAmount());
+            this.teamService.changeTeamBalance(proposal.getReceiverTeam().getTeamId(), proposal.getReceiverTeam().getBalance() + proposal.getAmount());
             this.teamProposalService.changeProposalStatus(proposal, newStatus);
             logger.info("{} team just {} {}'s proposal", user.getTeam().getTeamName(), newStatus, proposal.getSenderSponsor().getName());
             return ResponseEntity.ok(new TeamProposalDTO(proposal));
@@ -190,4 +195,89 @@ public class UserController {
             return ResponseEntity.status(400).body(ex.getMessage());
         }
     }
+
+    @PostMapping("/teaminvite")
+    public ResponseEntity<?> createTeamInvite(@RequestBody TeamInvite teamInvite, HttpSession session) {
+        try {
+            User user = (User) session.getAttribute("user");
+            if (user == null) {
+                return ResponseEntity.status(400).body("Login first");
+            }if (user.getRole().equals("Player")) {
+                return ResponseEntity.status(400).body("You are not manager. Only manager can send team invites");
+            }if (user.getTeam() == null){
+                return ResponseEntity.status(400).body("Manager must be member of a team in order send team invites");
+            }
+            TeamInvite t = this.teamInviteService.createTeamInvite(teamInvite, user);
+            return ResponseEntity.status(200).body(new TeamInviteDTO(t));
+
+        } catch (CustomException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+
+    }
+
+    @GetMapping("/teaminvite/received")
+    public ResponseEntity<?> viewAllTeamInvite(HttpSession session) {
+        try {
+            User user = (User) session.getAttribute("user");
+            if (user == null) {
+                return ResponseEntity.status(400).body("Login first");
+            }
+            List<TeamInvite> t = this.teamInviteService.getAllTeamInvites(user);
+            List<TeamInviteDTO> res = new ArrayList<>();
+            t.forEach(teamInvite -> {
+                res.add(new TeamInviteDTO(teamInvite));
+            });
+            return ResponseEntity.status(200).body(res);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+
+    }
+
+    @GetMapping("/teaminvite/sent")
+    public ResponseEntity<?> viewAllSentTeamInvite(HttpSession session) {
+        try {
+            User user = (User) session.getAttribute("user");
+            if (user == null) {
+                return ResponseEntity.status(400).body("Login first");
+            } if (user.getRole().equals("Player")) {
+                return ResponseEntity.status(400).body("You are not manager. Only manager can send team invites");
+            } if (user.getTeam() == null){
+                return ResponseEntity.status(400).body("Manager must be member of a team in order send team invites");
+            }
+            List<TeamInvite> t = this.teamInviteService.getAllSentTeamInvites(user);
+            List<TeamInviteDTO> res = new ArrayList<>();
+            t.forEach(teamInvite -> {
+                res.add(new TeamInviteDTO(teamInvite));
+            });
+            return ResponseEntity.status(200).body(res);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+
+    }
+
+    @PatchMapping("/teaminvites/{newStatus}")
+    public ResponseEntity<?> updateTeamInvite(@PathVariable String newStatus, @RequestParam UUID teamInviteId, HttpSession session) {
+        try {
+            User user = (User) session.getAttribute("user");
+            if (user == null) {
+                return ResponseEntity.status(400).body("Login first");
+            } if (! (newStatus.equalsIgnoreCase("accepted") || newStatus.equalsIgnoreCase("rejected"))) {
+                return ResponseEntity.status(400).body("Invalid status. Status can only be 'accepted' or 'rejected'.");
+            }
+            this.teamInviteService.updateTeamInviteStatus(teamInviteId, newStatus, user);
+            return ResponseEntity.status(200).body("User successfully changed team invite status");
+        } catch (CustomException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+    }
+
 }

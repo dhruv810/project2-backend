@@ -140,5 +140,19 @@ public class SponsorController {
         }
     }
 
+    @GetMapping("/proposals")
+    public ResponseEntity<?> getAllProposals( HttpSession session) {
+        try {
+            List<TeamProposal> proposals = this.teamProposalService.getAllProposals();
+            List<TeamProposalDTO> res = new ArrayList<>();
+            proposals.forEach(teamProposal -> {
+                res.add(new TeamProposalDTO(teamProposal));
+            });
+            logger.info("Accessing all proposals");
+            return ResponseEntity.ok().body(res);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+    }
 
 }

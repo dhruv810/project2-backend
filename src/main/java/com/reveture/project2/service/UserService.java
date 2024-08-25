@@ -2,17 +2,13 @@ package com.reveture.project2.service;
 
 import com.reveture.project2.DTO.TeamProposalDTO;
 import com.reveture.project2.DTO.TeamProposalDTO_PLAYER;
-import com.reveture.project2.DTO.UserDTO;
 import com.reveture.project2.entities.Team;
 import com.reveture.project2.entities.TeamProposal;
 import com.reveture.project2.entities.User;
 import com.reveture.project2.exception.CustomException;
 import com.reveture.project2.repository.UserRepository;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -184,7 +180,13 @@ public class UserService {
         return userRepository.saveAndFlush(user);
     }
 
-    public void updatePlayerTeamAndSalary(User player) {
-        this.userRepository.save(player);
+    public void updatePlayerTeamAndSalary(User p, Team t, Double salary) throws CustomException {
+        if (salary < 0) {
+            throw new CustomException("Salary cannot be less than 0");
+        }
+        User player = this.getUserByUUID(p.getUserId());
+        player.setSalary(salary);
+        player.setTeam(t);
+        this.userRepository.saveAndFlush(player);
     }
 }

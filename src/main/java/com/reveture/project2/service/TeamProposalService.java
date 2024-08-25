@@ -63,15 +63,18 @@ public class TeamProposalService {
     public void changeProposalStatus(TeamProposal prop, String status) throws CustomException {
         if (status.equalsIgnoreCase("accepted")) {
             prop.setStatus("Accepted");
-            this.teamProposalRepository.save(prop);
         } else {
             this.sponsorService.updateBudget(prop.getSenderSponsor().getSponsorId(), prop.getSenderSponsor().getBudget() + prop.getAmount());
             prop.setStatus("Rejected");
-            this.teamProposalRepository.deleteById(prop.getProposalId());
         }
+        this.teamProposalRepository.save(prop);
     }
 
     public List<TeamProposal> getProposalByStatusByTeam(Team t, String status) {
         return this.teamProposalRepository.findAllByReceiverTeamAndStatus(t, status);
+    }
+
+    public List<TeamProposal> getAllProposals() {
+        return this.teamProposalRepository.findAll();
     }
 }
