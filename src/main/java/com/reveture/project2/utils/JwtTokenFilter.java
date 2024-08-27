@@ -1,5 +1,6 @@
 package com.reveture.project2.utils;
 
+import com.reveture.project2.entities.Sponsor;
 import com.reveture.project2.entities.User;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -19,6 +20,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 //This Util Class will make sure the requests hitting our server have a JWT in the Authorization header
 
@@ -89,14 +91,25 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     and sets this Authentication object in the security context.
     This helps Spring determine who the user is and what privileges they have */
     private void setAuthenticationContext(String token, HttpServletRequest request) {
-        User user = (User) getUserDetails(token);
+        UserDetails userDetails = getUserDetails(token);
+        List<GrantedAuthority> authorities;
+        UsernamePasswordAuthenticationToken authentication;
 
-        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(user.getRole()));
+        if (userDetails instanceof User user) {
+            authorities = List.of(new SimpleGrantedAuthority(user.getRole()));
+            authentication = new UsernamePasswordAuthenticationToken(
+                    user,
+                    null,
+                    authorities);
+        } else {
+            authorities = List.of(new SimpleGrantedAuthority("SPONSOR"));
+            authentication = new UsernamePasswordAuthenticationToken(
+                    (Sponsor) userDetails,
+                    null,
+                    authorities);
+        }
 
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                user,
-                null,
-                authorities);
+
 
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
@@ -105,12 +118,27 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
     //This is used to extract the userId, username, and role from the JWT in the method above
     private UserDetails getUserDetails(String token) {
+        UUID id = jwtUtil.extractUserId(token);
+        String username = jwtUtil.extractUsername(token);
+        String role = jwtUtil.extractRole(token);
+
+        if(role.equalsIgnoreCase("SPONSOR")) {
+            Sponsor sponsor = new Sponsor();
+            sponsor.setSponsorId(id);
+            sponsor.setUsername(username);
+
+            System.out.println("sponsor: " + sponsor);
+            System.out.println("role: " + role);
+
+            return sponsor;
+        }
+
         User userDetails = new User();
 
         //use the extractor methods we wrote in JwtTokenUtil to get the userId and username
-        userDetails.setUserId(jwtUtil.extractUserId(token));
-        userDetails.setUsername(jwtUtil.extractUsername(token));
-        userDetails.setRole(jwtUtil.extractRole(token));
+        userDetails.setUserId(id);
+        userDetails.setUsername(username);
+        userDetails.setRole(role);
 
         System.out.println("user: " + userDetails);
         System.out.println("role: " + userDetails.getRole());

@@ -12,7 +12,6 @@ import com.reveture.project2.service.TeamInviteService;
 import com.reveture.project2.service.TeamProposalService;
 import com.reveture.project2.service.TeamService;
 import com.reveture.project2.service.UserService;
-import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -8,11 +8,12 @@ import com.reveture.project2.exception.CustomException;
 import com.reveture.project2.service.SponsorService;
 import com.reveture.project2.service.TeamProposalService;
 import com.reveture.project2.service.TeamService;
-import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -61,9 +62,12 @@ public class SponsorController {
     }
 
     @PatchMapping("/budget/{newBudget}")
-    public ResponseEntity<?> updateBudget(@PathVariable Double newBudget, HttpSession session) {
+    public ResponseEntity<?> updateBudget(@PathVariable Double newBudget) {
         try {
-            Sponsor sponsor = (Sponsor) session.getAttribute("sponsor");
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Sponsor sponsor = (Sponsor) authentication.getPrincipal();
+            sponsor = this.sponsorService.findSponsorIdIfExists(sponsor.getSponsorId());
+
             if (sponsor == null) {
                 return ResponseEntity.status(400).body("Login first");
             }
@@ -83,9 +87,12 @@ public class SponsorController {
     This gives error that cant add because team do not exist.
     */
     @PostMapping("/proposal")
-    public ResponseEntity<?> sendProposal(@RequestBody TeamProposal teamProposal, HttpSession session) {
+    public ResponseEntity<?> sendProposal(@RequestBody TeamProposal teamProposal) {
         try {
-            Sponsor sponsor = (Sponsor) session.getAttribute("sponsor");
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Sponsor sponsor = (Sponsor) authentication.getPrincipal();
+            sponsor = this.sponsorService.findSponsorIdIfExists(sponsor.getSponsorId());
+
             if (sponsor == null) {
                 return ResponseEntity.status(400).body("Login first");
             }
@@ -102,9 +109,12 @@ public class SponsorController {
     }
 
     @GetMapping("/teams")
-    public ResponseEntity<?> getAllTeamsSponsorInvestedIn(HttpSession session) {
+    public ResponseEntity<?> getAllTeamsSponsorInvestedIn() {
         try {
-            Sponsor sponsor = (Sponsor) session.getAttribute("sponsor");
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Sponsor sponsor = (Sponsor) authentication.getPrincipal();
+            sponsor = this.sponsorService.findSponsorIdIfExists(sponsor.getSponsorId());
+
             if (sponsor == null) {
                 return ResponseEntity.status(400).body("Login first");
             }
@@ -124,9 +134,12 @@ public class SponsorController {
     }
 
     @GetMapping("/proposals/{status}")
-    public ResponseEntity<?> getAllProposalsBySponsorByStatus(@PathVariable String status, HttpSession session) {
+    public ResponseEntity<?> getAllProposalsBySponsorByStatus(@PathVariable String status) {
         try {
-            Sponsor sponsor = (Sponsor) session.getAttribute("sponsor");
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Sponsor sponsor = (Sponsor) authentication.getPrincipal();
+            sponsor = this.sponsorService.findSponsorIdIfExists(sponsor.getSponsorId());
+
             if (sponsor == null) {
                 return ResponseEntity.status(400).body("Login first");
             }
@@ -152,7 +165,7 @@ public class SponsorController {
     }
 
     @GetMapping("/proposals")
-    public ResponseEntity<?> getAllProposals( HttpSession session) {
+    public ResponseEntity<?> getAllProposals() {
         try {
             List<TeamProposal> proposals = this.teamProposalService.getAllProposals();
             List<TeamProposalDTO> res = new ArrayList<>();

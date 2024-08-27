@@ -5,14 +5,9 @@ import com.reveture.project2.DTO.SponsorDTO;
 import com.reveture.project2.DTO.UserDTO;
 import com.reveture.project2.entities.Sponsor;
 import com.reveture.project2.entities.User;
-import com.reveture.project2.exception.CustomException;
 import com.reveture.project2.service.AuthService;
 import com.reveture.project2.service.TeamService;
 import com.reveture.project2.utils.JwtTokenUtil;
-import jakarta.servlet.http.HttpSession;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.ToString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,20 +17,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-@Data
-@ToString
-@AllArgsConstructor
-class Temp {
-    private String username;
-    private String role;
-}
-
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
 
     final private AuthService authService;
-    public static HttpSession ses;
     private static final Logger logger = LoggerFactory.getLogger(TeamService.class);
     private JwtTokenUtil jwtTokenUtil;
     private AuthenticationManager authenticationManager;
@@ -96,12 +82,4 @@ public class AuthController {
         }
 
     }
-
-    @GetMapping("/user/logout")
-    public ResponseEntity<?> logout(HttpSession httpSession) {
-        httpSession.invalidate();
-        logger.info("Logged out everyone.");
-        return ResponseEntity.ok().body("Logged out");
-    }
-
 }
