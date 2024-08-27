@@ -1,6 +1,5 @@
 package com.reveture.project2.controller;
 
-import ch.qos.logback.core.encoder.EchoEncoder;
 import com.reveture.project2.DTO.TeamInviteDTO;
 import com.reveture.project2.DTO.TeamProposalDTO;
 import com.reveture.project2.DTO.UserDTO;
@@ -18,6 +17,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
 
@@ -31,22 +33,26 @@ public class UserController {
 
     private final UserService userService;
     private final TeamService teamService;
+    private PasswordEncoder passwordEncoder;
     private final TeamProposalService teamProposalService;
     final private TeamInviteService teamInviteService;
     private static final Logger logger = LoggerFactory.getLogger(TeamService.class);
 
     @Autowired
-    public UserController(UserService userService, TeamService teamService, TeamProposalService teamProposalService, TeamInviteService teamInviteService) {
+    public UserController(PasswordEncoder passwordEncoder, UserService userService, TeamService teamService, TeamProposalService teamProposalService, TeamInviteService teamInviteService) {
         this.userService = userService;
         this.teamService = teamService;
         this.teamProposalService = teamProposalService;
         this.teamInviteService = teamInviteService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @GetMapping("/sponsors/{status}")
-    public ResponseEntity<?> seeSponsorships(HttpSession session, @PathVariable String status){
+    public ResponseEntity<?> seeSponsorships(@PathVariable String status){
         try {
-            User user = (User) session.getAttribute("user");
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            User user = (User) authentication.getPrincipal();
+            user = this.userService.getUserByUUID(user.getUserId());
             if (user == null) {
                 return ResponseEntity.status(400).body("Login first");
             }
@@ -74,15 +80,18 @@ public class UserController {
     }
 
     @GetMapping("/user")
-    public ResponseEntity<?> viewUsers(HttpSession session) {
+    public ResponseEntity<?> viewUsers() {
         try {
-            User user = (User) session.getAttribute("user");
-
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            User user = (User) authentication.getPrincipal();
+            user = this.userService.getUserByUUID(user.getUserId());
             //user checks
             if (user == null) {
                 return ResponseEntity.status(400).body("Login first");
             } else if (!user.getRole().equals("Manager")) {
                 return ResponseEntity.status(400).body("You are not a manager. Only managers can view all team members");
+            } else if (user.getTeam() == null) {
+                return ResponseEntity.status(400).body("You are not part of any team, so you cannot see team members");
             }
 
             List<User> users = this.userService.getAllUsersByTeam(user.getTeam());
@@ -100,6 +109,7 @@ public class UserController {
     @PostMapping("/create")
     public ResponseEntity<?> createUser(@RequestBody User u ){
         try{
+            u.setPassword(passwordEncoder.encode(u.getPassword()));
             User user = userService.addNewUser(u);
             logger.info("Create new user with username: {}", u.getUsername());
             return ResponseEntity.ok().body(new UserDTO(user));
@@ -112,9 +122,11 @@ public class UserController {
     }
 
     @PatchMapping("/role/{newRole}")
-    public ResponseEntity<String> updateUserRole(@PathVariable String newRole, @RequestParam UUID player_id, HttpSession session){
+    public ResponseEntity<String> updateUserRole(@PathVariable String newRole, @RequestParam UUID player_id){
         try {
-            User user = (User) session.getAttribute("user");
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            User user = (User) authentication.getPrincipal();
+            user = this.userService.getUserByUUID(user.getUserId());
             if (user == null) {
                 return ResponseEntity.status(400).body("Login first");
             }
@@ -138,10 +150,11 @@ public class UserController {
 
     //remove user from team
     @PatchMapping("/users/{userId}")
-    public ResponseEntity<?> removeUser(@PathVariable UUID userId, HttpSession session) {
+    public ResponseEntity<?> removeUser(@PathVariable UUID userId) {
         try {
-            User user = (User) session.getAttribute("user");
-
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            User user = (User) authentication.getPrincipal();
+            user = this.userService.getUserByUUID(user.getUserId());
             //user checks
             if (user == null) {
                 return ResponseEntity.status(400).body("Login first");
@@ -165,9 +178,11 @@ public class UserController {
     }
 
     @PatchMapping("/proposal/sponsor/{newStatus}")
-    public ResponseEntity<?> acceptOrRejectSponsorProposal(@PathVariable String newStatus, @RequestParam UUID proposal_ID, HttpSession session){
+    public ResponseEntity<?> acceptOrRejectSponsorProposal(@PathVariable String newStatus, @RequestParam UUID proposal_ID){
         try {
-            User user = (User) session.getAttribute("user");
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            User user = (User) authentication.getPrincipal();
+            user = this.userService.getUserByUUID(user.getUserId());
             if (user == null) {
                 return ResponseEntity.status(400).body("Login first");
             }if (user.getRole().equals("Player")) {
@@ -197,9 +212,11 @@ public class UserController {
     }
 
     @PostMapping("/teaminvite")
-    public ResponseEntity<?> createTeamInvite(@RequestBody TeamInvite teamInvite, HttpSession session) {
+    public ResponseEntity<?> createTeamInvite(@RequestBody TeamInvite teamInvite) {
         try {
-            User user = (User) session.getAttribute("user");
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            User user = (User) authentication.getPrincipal();
+            user = this.userService.getUserByUUID(user.getUserId());
             if (user == null) {
                 return ResponseEntity.status(400).body("Login first");
             }if (user.getRole().equals("Player")) {
@@ -219,9 +236,11 @@ public class UserController {
     }
 
     @GetMapping("/teaminvite/received")
-    public ResponseEntity<?> viewAllTeamInvite(HttpSession session) {
+    public ResponseEntity<?> viewAllTeamInvite() {
         try {
-            User user = (User) session.getAttribute("user");
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            User user = (User) authentication.getPrincipal();
+            user = this.userService.getUserByUUID(user.getUserId());
             if (user == null) {
                 return ResponseEntity.status(400).body("Login first");
             }
@@ -239,9 +258,11 @@ public class UserController {
     }
 
     @GetMapping("/teaminvite/sent")
-    public ResponseEntity<?> viewAllSentTeamInvite(HttpSession session) {
+    public ResponseEntity<?> viewAllSentTeamInvite() {
         try {
-            User user = (User) session.getAttribute("user");
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            User user = (User) authentication.getPrincipal();
+            user = this.userService.getUserByUUID(user.getUserId());
             if (user == null) {
                 return ResponseEntity.status(400).body("Login first");
             } if (user.getRole().equals("Player")) {
@@ -263,9 +284,11 @@ public class UserController {
     }
 
     @PatchMapping("/teaminvites/{newStatus}")
-    public ResponseEntity<?> updateTeamInvite(@PathVariable String newStatus, @RequestParam UUID teamInviteId, HttpSession session) {
+    public ResponseEntity<?> updateTeamInvite(@PathVariable String newStatus, @RequestParam UUID teamInviteId) {
         try {
-            User user = (User) session.getAttribute("user");
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            User user = (User) authentication.getPrincipal();
+            user = this.userService.getUserByUUID(user.getUserId());
             if (user == null) {
                 return ResponseEntity.status(400).body("Login first");
             } if (! (newStatus.equalsIgnoreCase("accepted") || newStatus.equalsIgnoreCase("rejected"))) {

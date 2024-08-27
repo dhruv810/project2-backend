@@ -17,6 +17,7 @@ public class UserDTO {
     private String role;
     private String teamName;
     private Double salary;
+    private String JWT;
 
 
     public UserDTO(User user) {
@@ -31,7 +32,17 @@ public class UserDTO {
         this.salary = user.getSalary();
     }
 
-
-
+    public UserDTO(User user, String jwt) {
+        this.userId = user.getUserId();
+        this.username = user.getUsername();
+        this.role = user.getRole();
+        if (user.getTeam() != null)
+            this.teamName = user.getTeam().getTeamName();
+        else {
+            this.teamName = "None";
+        }
+        this.salary = user.getSalary();
+        this.JWT = jwt;
+    }
 
 }
