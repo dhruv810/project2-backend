@@ -7,6 +7,7 @@ import com.reveture.project2.exception.CustomException;
 import com.reveture.project2.repository.TeamProposalRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -20,22 +21,26 @@ public class TeamProposalService {
 
     final private TeamProposalRepository teamProposalRepository;
     final private SponsorService sponsorService;
+    final private TeamService teamService;
 
     // constructor injection is better
     @Autowired
-    public TeamProposalService(TeamProposalRepository repository, SponsorService sponsorService) {
+    public TeamProposalService(TeamProposalRepository repository, SponsorService sponsorService, @Lazy TeamService teamService) {
         this.teamProposalRepository = repository;
         this.sponsorService = sponsorService;
+        this.teamService = teamService;
     }
 
     public TeamProposal createProposal(TeamProposal teamProposal) throws CustomException {
         Sponsor s = this.sponsorService.findSponsorIdIfExists(teamProposal.getSenderSponsor().getSponsorId());
-        // TODO:: Check that team exists, if not throw error
         if (teamProposal.getAmount() < 0) {
             throw new CustomException("Amount cannot be < 0");
         } else if (teamProposal.getAmount() > s.getBudget()) {
             throw new CustomException("You cannot send proposal for " + teamProposal.getAmount() + "  while you only have " + s.getBudget());
+        } else if (teamProposal.getReceiverTeam() == null) {
+            throw new CustomException("You did not mentioned what team you want to sponsor");
         }
+        teamProposal.setReceiverTeam(this.teamService.findTeamByIdIfExists(teamProposal.getReceiverTeam().getTeamId()));
         this.sponsorService.updateBudget(s.getSponsorId(), s.getBudget() - teamProposal.getAmount());
         return this.teamProposalRepository.save(teamProposal);
     }
