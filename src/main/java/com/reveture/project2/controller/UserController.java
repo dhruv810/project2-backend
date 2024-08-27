@@ -302,4 +302,13 @@ public class UserController {
         }
     }
 
+    @GetMapping("/all")
+    public ResponseEntity<?> getAllUsers() {
+        List<User> users = this.userService.getAllUsers();
+        List<UserDTO> res = new ArrayList<>();
+        users.forEach(user -> {res.add(new UserDTO(user));});
+        return ResponseEntity.ok(res);
+
+    }
+
 }

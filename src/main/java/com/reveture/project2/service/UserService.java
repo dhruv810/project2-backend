@@ -189,4 +189,8 @@ public class UserService {
         player.setTeam(t);
         this.userRepository.saveAndFlush(player);
     }
+
+    public List<User> getAllUsers() {
+        return this.userRepository.findAll();
+    }
 }
