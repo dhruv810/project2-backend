@@ -1,8 +1,15 @@
 package com.reveture.project2.DTO;
 
 import com.reveture.project2.entities.Sponsor;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.util.UUID;
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class SponsorDTO {
 
     private UUID sponsorId;
@@ -10,6 +17,7 @@ public class SponsorDTO {
     private String category;
     private String name;
     private Double budget;
+    private String jwt;
 
     public SponsorDTO(Sponsor sponsor) {
         this.sponsorId = sponsor.getSponsorId();
@@ -19,54 +27,13 @@ public class SponsorDTO {
         this.budget = sponsor.getBudget();
     }
 
-    public UUID getSponsorId() {
-        return sponsorId;
+    public SponsorDTO(Sponsor sponsor, String jwt) {
+        this.sponsorId = sponsor.getSponsorId();
+        this.username = sponsor.getUsername();
+        this.category = sponsor.getCategory();
+        this.name = sponsor.getName();
+        this.budget = sponsor.getBudget();
+        this.jwt = jwt;
     }
 
-    public void setSponsorId(UUID sponsorId) {
-        this.sponsorId = sponsorId;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Double getBudget() {
-        return budget;
-    }
-
-    public void setBudget(Double budget) {
-        this.budget = budget;
-    }
-
-    @Override
-    public String toString() {
-        return "SponsorDTO{" +
-                "sponsorId=" + sponsorId +
-                ", username='" + username + '\'' +
-                ", category='" + category + '\'' +
-                ", name='" + name + '\'' +
-                ", budget=" + budget +
-                '}';
-    }
 }

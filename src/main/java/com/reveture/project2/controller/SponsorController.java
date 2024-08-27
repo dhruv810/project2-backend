@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -24,13 +25,15 @@ public class SponsorController {
 
     final private SponsorService sponsorService;
     final private TeamProposalService teamProposalService;
+    private PasswordEncoder passwordEncoder;
 
     private static final Logger logger = LoggerFactory.getLogger(TeamService.class);
 
     @Autowired
-    public SponsorController(SponsorService sponsorService, TeamProposalService teamProposalService) {
+    public SponsorController(PasswordEncoder passwordEncoder, SponsorService sponsorService, TeamProposalService teamProposalService) {
         this.sponsorService = sponsorService;
         this.teamProposalService = teamProposalService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @GetMapping("/all")
@@ -44,6 +47,7 @@ public class SponsorController {
     public ResponseEntity<?> createSponsor(@RequestBody Sponsor sponsor) {
 
         try {
+            sponsor.setPassword(passwordEncoder.encode(sponsor.getPassword()));
             Sponsor newSponsor = this.sponsorService.createSponsor(sponsor);
             SponsorDTO s = new SponsorDTO(newSponsor);
             logger.info("New sponsor created with name: {}", newSponsor.getName());

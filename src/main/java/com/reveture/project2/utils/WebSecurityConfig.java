@@ -1,5 +1,8 @@
 package com.reveture.project2.utils;
 
+import com.reveture.project2.entities.Sponsor;
+import com.reveture.project2.entities.User;
+import com.reveture.project2.repository.SponsorRepository;
 import com.reveture.project2.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -19,6 +22,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+import java.util.Arrays;
+
 //This utils Class handles all things Spring Security
 //(who can login? what endpoints can they access? also a method that gives us a password encoder)
 @Configuration //This tells Spring that this class contains configuration bean definitions
@@ -26,6 +31,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @EnableMethodSecurity
 public class WebSecurityConfig {
     private final UserRepository userDAO;
+    private final SponsorRepository sponsorDAO;
 
     //used for JWT token validation (We wrote this)
     private final JwtTokenFilter jwtTokenFilter;
@@ -34,8 +40,9 @@ public class WebSecurityConfig {
     private AuthenticationManagerBuilder authenticationManagerBuilder;
 
     @Autowired
-    public WebSecurityConfig(UserRepository userDAO, JwtTokenFilter jwtTokenFilter, AuthenticationManagerBuilder authenticationManagerBuilder) {
+    public WebSecurityConfig(UserRepository userDAO, SponsorRepository sponsorRepository, JwtTokenFilter jwtTokenFilter, AuthenticationManagerBuilder authenticationManagerBuilder) {
         this.userDAO = userDAO;
+        this.sponsorDAO = sponsorRepository;
         this.jwtTokenFilter = jwtTokenFilter;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
     }
@@ -44,12 +51,25 @@ public class WebSecurityConfig {
     //We use the userDAO to find a user by username, or throw an exception
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(username -> {
-            if(userDAO.findByUsername(username) == null){
-                throw new UsernameNotFoundException("User " + username + " not found.");
-            } else {
-                return userDAO.findByUsername(username);
+        auth.userDetailsService(uname -> {
+            String[] temp = uname.split(" ");
+            String username = temp[0];
+            String type = temp[1];
+
+            if (type.equalsIgnoreCase("USER")) {
+                User u = this.userDAO.findByUsername(username);
+                if (u == null) {
+                    throw new UsernameNotFoundException("User " + username + " not found.");
+                }
+                return u;
             }
+
+            Sponsor s = this.sponsorDAO.findByUsername(username);
+            if (s == null) {
+                throw new UsernameNotFoundException("Sponsor " + username + " not found.");
+            }
+            return s;
+
         });
     }
 

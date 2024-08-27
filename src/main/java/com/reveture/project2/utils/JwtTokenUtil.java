@@ -1,6 +1,8 @@
 package com.reveture.project2.utils;
 
+import com.reveture.project2.entities.Sponsor;
 import com.reveture.project2.entities.User;
+import com.reveture.project2.exception.CustomException;
 import io.jsonwebtoken.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,11 +49,29 @@ public class JwtTokenUtil {
 
     //This method does the actual creation of our JWT! The user's unique identifier token
     //This gets called after successful login
-    public String generateAccessToken(User u) {
+    public String generateAccessToken(Object o) throws CustomException {
+        UUID id;
+        String username;
+        String role;
+
+        if (o.getClass() == User.class) {
+            User u = (User) o;
+            id = u.getUserId();
+            username = u.getUsername();
+            role = u.getRole();
+        } else if (o.getClass() == Sponsor.class) {
+            Sponsor s = (Sponsor) o;
+            id = s.getSponsorId();
+            username = s.getUsername();
+            role = "SPONSOR";
+        } else {
+            throw new CustomException("Received invalid object in generateAccessToken");
+        }
+
         return Jwts.builder()
-                .setSubject(String.format("%s", u.getUserId())) //subject is typically ID
-                .claim("username", u.getUsername()) //any other data can be set as a claim
-                .claim("role", u.getRole())
+                .setSubject(String.format("%s", id)) //subject is typically ID
+                .claim("username", username) //any other data can be set as a claim
+                .claim("role", role)
                 .setIssuer("Project2")
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRE_DURATION))

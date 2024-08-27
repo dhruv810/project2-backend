@@ -1,6 +1,5 @@
 package com.reveture.project2.controller;
 
-import ch.qos.logback.core.encoder.EchoEncoder;
 import com.reveture.project2.DTO.LoginDTO;
 import com.reveture.project2.DTO.SponsorDTO;
 import com.reveture.project2.DTO.UserDTO;
@@ -11,6 +10,9 @@ import com.reveture.project2.service.AuthService;
 import com.reveture.project2.service.TeamService;
 import com.reveture.project2.utils.JwtTokenUtil;
 import jakarta.servlet.http.HttpSession;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.ToString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,14 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+@Data
+@ToString
+@AllArgsConstructor
+class Temp {
+    private String username;
+    private String role;
+}
 
 @RestController
 @RequestMapping("/auth")
@@ -38,10 +48,11 @@ public class AuthController {
     }
 
     @PostMapping("/user/login")
-    public ResponseEntity<?> login(@RequestBody LoginDTO lDTO, HttpSession httpSession) {
+    public ResponseEntity<?> login(@RequestBody LoginDTO lDTO) {
         try {
+            String usernameAndRole = lDTO.getUsername() + " USER";
             Authentication auth = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(lDTO.getUsername(), lDTO.getPassword())
+                    new UsernamePasswordAuthenticationToken(usernameAndRole, lDTO.getPassword())
             );
 
             //build up the user based on the validation above
@@ -52,7 +63,7 @@ public class AuthController {
 
             //create the OutgoingUserDTO with JWT, and send it back to the front end
             UserDTO outUser = new UserDTO(user, accessToken);
-
+            logger.info("User: {} just logged in", user.getUsername());
             return ResponseEntity.ok(outUser);
 
         } catch (Exception e) {
@@ -62,21 +73,25 @@ public class AuthController {
     }
 
     @PostMapping("/sponsor/login")
-    public ResponseEntity<?> loginSponsor(@RequestBody LoginDTO loginDTO, HttpSession httpSession) {
+    public ResponseEntity<?> loginSponsor(@RequestBody LoginDTO lDTO) {
         try {
-            Sponsor loggedInSponsor = authService.loginSponsor(loginDTO);
+            String usernameAndRole = lDTO.getUsername() + " SPONSOR";
+            Authentication auth = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(usernameAndRole, lDTO.getPassword())
+            );
 
-            if (loggedInSponsor != null) {
-                httpSession.setAttribute("sponsor", loggedInSponsor);
-                ses = httpSession;
-                logger.info("Sponsor: {} just logged in,", loggedInSponsor.getUsername());
-                return ResponseEntity.ok().body(new SponsorDTO(loggedInSponsor));
-            }
-            else {
-                return ResponseEntity.status(401).body("Invalid credentials");
-            }
+            //build up the user based on the validation above
+            Sponsor sponsor = (Sponsor) auth.getPrincipal();
 
-        } catch (CustomException e) {
+            //finally, generate a JWT!
+            String accessToken = jwtTokenUtil.generateAccessToken(sponsor);
+
+            //create the OutgoingUserDTO with JWT, and send it back to the front end
+            SponsorDTO outUser = new SponsorDTO(sponsor, accessToken);
+            logger.info("Sponsor: {} just logged in", sponsor.getName());
+            return ResponseEntity.ok(outUser);
+
+        } catch (Exception e) {
             return ResponseEntity.status(400).body(e.getMessage());
         }
 
@@ -87,24 +102,6 @@ public class AuthController {
         httpSession.invalidate();
         logger.info("Logged out everyone.");
         return ResponseEntity.ok().body("Logged out");
-    }
-
-    @GetMapping("/user")
-    public ResponseEntity<?> getUser(HttpSession httpSession) {
-        User currentUser = (User) httpSession.getAttribute("user");
-        if (currentUser == null) {
-            return ResponseEntity.status(400).body("Login first");
-        }
-        return ResponseEntity.ok().body(new UserDTO(currentUser));
-    }
-
-    @GetMapping("/sponsor")
-    public ResponseEntity<?> getSponsor(HttpSession httpSession) {
-        Sponsor currentSponsor = (Sponsor) httpSession.getAttribute("sponsor");
-        if (currentSponsor == null) {
-            return ResponseEntity.status(400).body("Login first");
-        }
-        return ResponseEntity.ok().body(new SponsorDTO(currentSponsor));
     }
 
 }
