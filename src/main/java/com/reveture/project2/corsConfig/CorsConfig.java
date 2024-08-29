@@ -14,9 +14,8 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("*") // React frontend URL
+                        .allowedOrigins("http://sportsponsers.s3-website-us-east-1.amazonaws.com") // React frontend URL
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH")
-                        .allowedHeaders("*")
                         .allowCredentials(true);
             }
         };
