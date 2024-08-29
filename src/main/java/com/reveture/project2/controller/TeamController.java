@@ -30,7 +30,7 @@ public class TeamController {
         this.userService = userService;
     }
 
-    @GetMapping("/team")
+    @GetMapping("/allteams")
     public ResponseEntity<?> getAllTeams() {
         logger.info("Received request to get all teams");
         List<Team> teamList = this.teamService.getAllTeams();

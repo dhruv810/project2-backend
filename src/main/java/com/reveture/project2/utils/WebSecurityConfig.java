@@ -101,7 +101,7 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(auth ->
                         auth.requestMatchers(new AntPathRequestMatcher("/user/**", HttpMethod.POST.toString())).permitAll()
                                 .requestMatchers("/auth/**").permitAll()
-                                .requestMatchers("/team").hasAuthority("Manager")
+                                .requestMatchers("/team").permitAll()
                                 .requestMatchers("/sponsor/**").permitAll()
                                 .requestMatchers("/user/**").permitAll()
                                 .anyRequest().authenticated()
