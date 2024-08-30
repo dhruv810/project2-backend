@@ -38,7 +38,7 @@ public class TeamService {
         }
         doesTeamNameExist(team.getTeamName());
 
-        team.setBalance(0.0);
+//        team.setBalance(0.0);
 
         return this.teamRepository.save(team);
     }

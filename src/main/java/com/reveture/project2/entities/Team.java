@@ -52,7 +52,7 @@ public class Team {
     @OneToMany(mappedBy = "team", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<User> teamMembers;
 
-    @JsonIgnore
+//    @JsonIgnore
     @Column(name = "balance", nullable = false)
     private Double balance;
 
